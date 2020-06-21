@@ -270,12 +270,12 @@ func (c *Client) DeleteInstance(uuid string) error {
 
 // Event defines an event that occurred on an instance
 type Event struct {
-	Timestamp string `json:"timestamp"`
-	FQDN      string `json:"fqdn"`
-	Operation string `json:"operation"`
-	Phase     string `json:"phase"`
-	Duration  int    `json:"duration"`
-	Message   string `json:"message"`
+	Timestamp float32 `json:"timestamp"`
+	FQDN      string  `json:"fqdn"`
+	Operation string  `json:"operation"`
+	Phase     string  `json:"phase"`
+	Duration  int     `json:"duration"`
+	Message   string  `json:"message"`
 }
 
 // GetInstanceEvents fetches events that have occurred on a specific instance
