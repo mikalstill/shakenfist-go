@@ -1,6 +1,6 @@
 // With many thanks to the example code from
 // https://github.com/spaceapegames/terraform-provider-example
-package shakenfist_go
+package client
 
 // Note that the following API calls are not yet implemented as
 // they are not needed for the terraform provider, which is the

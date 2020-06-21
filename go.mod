@@ -1,3 +1,3 @@
-module github.com/mikalstill/shakenfist_go
+module github.com/shakenfist/client-go
 
 go 1.14
