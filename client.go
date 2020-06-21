@@ -6,15 +6,6 @@ package client
 // they are not needed for the terraform provider, which is the
 // primary user of this client:
 //
-// * snapshot instance
-// * get instance snapshots
-// * reboot instance
-// * power off / on instance
-// * pause / unpause instance
-// * get instance events
-// * cache image
-// * get network events
-// * get nodes
 
 import (
 	"bytes"
@@ -57,33 +48,16 @@ type Network struct {
 
 // GetNetworks fetches a list of networks
 func (c *Client) GetNetworks() ([]Network, error) {
-	body, err := c.httpRequest("networks", "GET", bytes.Buffer{})
-	if err != nil {
-		return nil, err
-	}
-
 	networks := []Network{}
-	err = json.NewDecoder(body).Decode(&networks)
-	if err != nil {
-		return nil, err
-	}
-	return networks, nil
+	err := c.doRequest("networks", "GET", bytes.Buffer{}, &networks)
+	return networks, err
 }
 
 // GetNetwork fetches a specific instance by UUID
-func (c *Client) GetNetwork(networkUUID string) (Network, error) {
-	path := fmt.Sprintf("networks/%s", networkUUID)
-	body, err := c.httpRequest(path, "GET", bytes.Buffer{})
-	if err != nil {
-		return Network{}, err
-	}
-
+func (c *Client) GetNetwork(uuid string) (Network, error) {
 	network := Network{}
-	err = json.NewDecoder(body).Decode(&network)
-	if err != nil {
-		return Network{}, err
-	}
-	return network, nil
+	err := c.doRequest("networks/"+uuid, "GET", bytes.Buffer{}, &network)
+	return network, err
 }
 
 type createNetworkRequest struct {
@@ -107,27 +81,16 @@ func (c *Client) CreateNetwork(netblock string, provideDHCP bool, provideNAT boo
 		return Network{}, err
 	}
 
-	body, err := c.httpRequest("networks", "POST", *bytes.NewBuffer(post))
-	if err != nil {
-		return Network{}, err
-	}
-
 	network := Network{}
-	err = json.NewDecoder(body).Decode(&network)
-	if err != nil {
-		return Network{}, err
-	}
-	return network, nil
+	err = c.doRequest("networks", "POST", *bytes.NewBuffer(post), &network)
+	return network, err
 }
 
 // DeleteNetwork removes a network with a specified UUID
-func (c *Client) DeleteNetwork(networkUUID string) error {
-	path := fmt.Sprintf("networks/%s", networkUUID)
+func (c *Client) DeleteNetwork(uuid string) error {
+	path := "networks/" + uuid
 	_, err := c.httpRequest(path, "DELETE", bytes.Buffer{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // DiskSpec is a definition of an instance disk
@@ -165,33 +128,18 @@ type Instance struct {
 
 // GetInstances fetches a list of instances
 func (c *Client) GetInstances() ([]Instance, error) {
-	body, err := c.httpRequest("instances", "GET", bytes.Buffer{})
-	if err != nil {
-		return nil, err
-	}
-
 	instances := []Instance{}
-	err = json.NewDecoder(body).Decode(&instances)
-	if err != nil {
-		return nil, err
-	}
-	return instances, nil
+	err := c.doRequest("instances", "GET", bytes.Buffer{}, &instances)
+
+	return instances, err
 }
 
 // GetInstance fetches a specific instance by UUID
-func (c *Client) GetInstance(instanceUUID string) (Instance, error) {
-	path := fmt.Sprintf("instances/%s", instanceUUID)
-	body, err := c.httpRequest(path, "GET", bytes.Buffer{})
-	if err != nil {
-		return Instance{}, err
-	}
-
+func (c *Client) GetInstance(uuid string) (Instance, error) {
 	instance := Instance{}
-	err = json.NewDecoder(body).Decode(&instance)
-	if err != nil {
-		return Instance{}, err
-	}
-	return instance, nil
+	err := c.doRequest("instances/"+uuid, "GET", bytes.Buffer{}, &instance)
+
+	return instance, err
 }
 
 // NetworkInterface is a definition of an network interface for an instance
@@ -209,19 +157,12 @@ type NetworkInterface struct {
 }
 
 // GetInstanceInterfaces fetches a list of network interfaces for an instance
-func (c *Client) GetInstanceInterfaces(instanceUUID string) ([]NetworkInterface, error) {
-	path := fmt.Sprintf("instances/%s/interfaces", instanceUUID)
-	body, err := c.httpRequest(path, "GET", bytes.Buffer{})
-	if err != nil {
-		return nil, err
-	}
-
+func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) {
+	path := "instances/" + uuid + "/interfaces"
 	interfaces := []NetworkInterface{}
-	err = json.NewDecoder(body).Decode(&interfaces)
-	if err != nil {
-		return nil, err
-	}
-	return interfaces, nil
+	err := c.doRequest(path, "GET", bytes.Buffer{}, &interfaces)
+
+	return interfaces, err
 }
 
 type createInstanceRequest struct {
@@ -252,50 +193,181 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 		return Instance{}, err
 	}
 
-	body, err := c.httpRequest("instances", "POST", *bytes.NewBuffer(post))
-	if err != nil {
-		return Instance{}, err
-	}
-
 	instance := Instance{}
-	err = json.NewDecoder(body).Decode(&instance)
-	if err != nil {
-		return Instance{}, err
-	}
+	err = c.doRequest("instances", "POST", *bytes.NewBuffer(post), &instance)
+
 	return instance, nil
 }
 
-// DeleteInstance deletes an instance
-func (c *Client) DeleteInstance(instanceUUID string) error {
-	path := fmt.Sprintf("instances/%s", instanceUUID)
-	_, err := c.httpRequest(path, "DELETE", bytes.Buffer{})
+// snapshotRequest defines options when making a snapshot of an instance
+type snapshotRequest struct {
+	All bool `json:"all"`
+}
+
+// SnapshotInstance takes a snapshot of an instance
+func (c *Client) SnapshotInstance(uuid string, all bool) error {
+	path := "instances/" + uuid + "/snapshot"
+
+	request := &snapshotRequest{
+		All: all,
+	}
+	post, err := json.Marshal(request)
 	if err != nil {
 		return err
 	}
-	return nil
+
+	_, err = c.httpRequest(path, "POST", *bytes.NewBuffer(post))
+
+	return err
+}
+
+// Snapshot defines a snapshot of an instance
+type Snapshot struct {
+	UUID    string `json:"uuid"`
+	Device  string `json:"device"`
+	Created int64  `json:"created"`
+}
+
+// GetInstanceSnapshots fetches a list of instance snapshots
+func (c *Client) GetInstanceSnapshots(uuid string) ([]Snapshot, error) {
+	snapshots := []Snapshot{}
+	path := "instances/" + uuid + "/snapshot"
+	err := c.doRequest(path, "GET", bytes.Buffer{}, &snapshots)
+
+	return snapshots, err
+}
+
+// RebootInstance reboots an instance
+func (c *Client) RebootInstance(uuid string) error {
+	return c.postRequest("instances", uuid, "reboot")
+}
+
+// PowerOffInstance powers on an instance
+func (c *Client) PowerOffInstance(uuid string) error {
+	return c.postRequest("instances", uuid, "poweroff")
+}
+
+// PowerOnInstance powers on an instance
+func (c *Client) PowerOnInstance(uuid string) error {
+	return c.postRequest("instances", uuid, "poweron")
+}
+
+// PauseInstance will pause an instance
+func (c *Client) PauseInstance(uuid string) error {
+	return c.postRequest("instances", uuid, "pause")
+}
+
+// UnPauseInstance will unpause an instance
+func (c *Client) UnPauseInstance(uuid string) error {
+	return c.postRequest("instances", uuid, "unpause")
+}
+
+// DeleteInstance deletes an instance
+func (c *Client) DeleteInstance(uuid string) error {
+	_, err := c.httpRequest("instances/"+uuid, "DELETE", bytes.Buffer{})
+	return err
+}
+
+// Event defines an event that occurred on an instance
+type Event struct {
+	Timestamp float32 `json:"timestamp"`
+	FQDN      string  `json:"fqdn"`
+	Operation string  `json:"operation"`
+	Phase     string  `json:"phase"`
+	Duration  int     `json:"duration"`
+	Message   string  `json:"message"`
+}
+
+// GetInstanceEvents fetches events that have occurred on a specific instance
+func (c *Client) GetInstanceEvents(uuid string) ([]Event, error) {
+	events := []Event{}
+	err := c.doRequest("instances/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
+	return events, err
+}
+
+// ImageRequest defines a link to an image
+type imageRequest struct {
+	URL string `json:"url"`
+}
+
+// CacheImage will cache an image
+func (c *Client) CacheImage(imageURL string) error {
+	request := &imageRequest{
+		URL: imageURL,
+	}
+	post, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.httpRequest("images", "POST", *bytes.NewBuffer(post))
+
+	return err
+}
+
+// GetNetworkEvents fetches events that have occurred on a specific network
+func (c *Client) GetNetworkEvents(uuid string) ([]Event, error) {
+	events := []Event{}
+	err := c.doRequest("network/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
+	return events, err
+}
+
+// Node defines a ShakenFist node
+type Node struct {
+	Name     string `json:"name"`
+	IP       string `json:"ip"`
+	LastSeen string `json:"lastseen"`
+}
+
+// GetNodes fetches a list of nodes
+func (c *Client) GetNodes() ([]Node, error) {
+	nodes := []Node{}
+	err := c.doRequest("nodes", "GET", bytes.Buffer{}, &nodes)
+	return nodes, err
 }
 
 // FloatInterface adds a floating IP to an interface
 func (c *Client) FloatInterface(interfaceUUID string) error {
-	path := fmt.Sprintf("interfaces/%s/float", interfaceUUID)
-	_, err := c.httpRequest(path, "POST", bytes.Buffer{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.postRequest("interfaces", interfaceUUID, "float")
 }
 
 // DefloatInterface removes a floating IP from an interface
 func (c *Client) DefloatInterface(interfaceUUID string) error {
-	path := fmt.Sprintf("interfaces/%s/defloat", interfaceUUID)
-	_, err := c.httpRequest(path, "POST", bytes.Buffer{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.postRequest("interfaces", interfaceUUID, "defloat")
 }
 
-func (c *Client) httpRequest(path, method string, body bytes.Buffer) (closer io.ReadCloser, err error) {
+//
+// Internal helper functions
+//
+
+func (c *Client) getRequest(
+	object, uuid string, cmd string, resp interface{}) error {
+
+	err := c.doRequest("GET", object+"/"+uuid+"/"+cmd, bytes.Buffer{}, resp)
+	return err
+}
+
+func (c *Client) postRequest(object string, uuid string, cmd string) error {
+	_, err := c.httpRequest(object+"/"+uuid+"/"+cmd, "POST", bytes.Buffer{})
+	return err
+}
+
+func (c *Client) doRequest(
+	path, method string, data bytes.Buffer, resp interface{}) error {
+
+	body, err := c.httpRequest(path, method, data)
+
+	// Return on error or if JSON decoding not required
+	if err != nil || resp == nil {
+		return err
+	}
+
+	return json.NewDecoder(body).Decode(resp)
+}
+
+func (c *Client) httpRequest(
+	path, method string, body bytes.Buffer) (io.ReadCloser, error) {
+
 	req, err := http.NewRequest(method, c.requestPath(path), &body)
 	if err != nil {
 		return nil, err
@@ -312,9 +384,11 @@ func (c *Client) httpRequest(path, method string, body bytes.Buffer) (closer io.
 		respBody := new(bytes.Buffer)
 		_, err := respBody.ReadFrom(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Got a non 200 status code: %v", resp.StatusCode)
+			return nil, fmt.Errorf("Got a non 200 status code: %v",
+				resp.StatusCode)
 		}
-		return nil, fmt.Errorf("Got a non 200 status code: %v - %s", resp.StatusCode, respBody.String())
+		return nil, fmt.Errorf("Got a non 200 status code: %v - %s",
+			resp.StatusCode, respBody.String())
 	}
 	return resp.Body, nil
 }
