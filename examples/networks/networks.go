@@ -20,45 +20,6 @@ func printNetwork(network client.Network) {
 	fmt.Println("")
 }
 
-func printInstance(instance client.Instance) {
-	fmt.Printf("UUID: %s\n", instance.UUID)
-	fmt.Printf("Name: %s\n", instance.Name)
-	fmt.Printf("CPUs: %d\n", instance.CPUs)
-	fmt.Printf("Memory (MB): %d\n", instance.Memory)
-	fmt.Println("Disks:")
-	for _, disk := range instance.DiskSpecs {
-		fmt.Printf("  - Base: %s\n", disk.Base)
-		fmt.Printf("    Size: %d\n", disk.Size)
-		fmt.Printf("    Bus:  %s\n", disk.Bus)
-		fmt.Printf("    Type: %s\n", disk.Type)
-	}
-	fmt.Printf("SSHKey: %s\n", instance.SSHKey)
-	fmt.Printf("Node: %s\n", instance.Node)
-	fmt.Printf("ConsolePort: %d\n", instance.ConsolePort)
-	fmt.Printf("VDIPort: %d\n", instance.VDIPort)
-	fmt.Printf("UserData: %s\n", instance.UserData)
-	fmt.Printf("State: %s\n", instance.State)
-	fmt.Printf("StateUpdated: %s\n", time.Unix(int64(instance.StateUpdated), 0))
-	fmt.Println("")
-}
-
-func printInterfaces(interfaces []client.NetworkInterface) {
-	for _, iface := range interfaces {
-		fmt.Printf("  - UUID: %s\n", iface.UUID)
-		fmt.Printf("    Network UUID: %s\n", iface.NetworkUUID)
-		fmt.Printf("    Instance UUID: %s\n", iface.InstanceUUID)
-		fmt.Printf("    MAC Address: %s\n", iface.MACAddress)
-		fmt.Printf("    IPv4 Address: %s\n", iface.IPv4)
-		fmt.Printf("    Order: %d\n", iface.Order)
-		fmt.Printf("    Floating Address: %s\n", iface.Floating)
-		fmt.Printf("    State: %s\n", iface.State)
-		fmt.Printf("    StateUpdated: %s\n", time.Unix(int64(iface.StateUpdated), 0))
-		fmt.Printf("    Model: %s\n", iface.Model)
-	}
-
-	fmt.Println("")
-}
-
 func main() {
 	c := client.NewClient("http://localhost", 13000)
 
