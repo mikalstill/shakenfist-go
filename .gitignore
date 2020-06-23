@@ -15,4 +15,5 @@
 # vendor/
 
 # Build products
-examples/examples
+examples/instances/instances
+examples/networks/networks
