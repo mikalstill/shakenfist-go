@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	client "github.com/shakenfist/client-go"
@@ -21,7 +22,12 @@ func printNetwork(network client.Network) {
 }
 
 func main() {
-	c := client.NewClient("http://localhost", 13000)
+	c := client.NewClient(
+		"http://localhost",
+		13000,
+		os.Getenv("SF_NAMESPACE"),
+		os.Getenv("SF_PASSWORD"),
+	)
 
 	fmt.Println("******************************")
 	fmt.Println("*** Get a list of networks ***")
