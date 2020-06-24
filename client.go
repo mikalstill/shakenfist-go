@@ -21,14 +21,23 @@ type Client struct {
 	hostname   string
 	port       int
 	httpClient *http.Client
+	namespace  string
+	apiKeyName string
+	apiKey     string
+	cachedAuth string
 }
 
 // NewClient returns a client ready for use
-func NewClient(hostname string, port int) *Client {
+func NewClient(hostname string, port int,
+	namespace, apiKeyName, apiKey string) *Client {
+
 	return &Client{
 		hostname:   hostname,
 		port:       port,
 		httpClient: &http.Client{},
+		namespace:  namespace,
+		apiKeyName: apiKeyName,
+		apiKey:     apiKey,
 	}
 }
 
@@ -89,7 +98,7 @@ func (c *Client) CreateNetwork(netblock string, provideDHCP bool, provideNAT boo
 // DeleteNetwork removes a network with a specified UUID
 func (c *Client) DeleteNetwork(uuid string) error {
 	path := "networks/" + uuid
-	_, err := c.httpRequest(path, "DELETE", bytes.Buffer{})
+	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
@@ -216,7 +225,7 @@ func (c *Client) SnapshotInstance(uuid string, all bool) error {
 		return err
 	}
 
-	_, err = c.httpRequest(path, "POST", *bytes.NewBuffer(post))
+	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
 
 	return err
 }
@@ -264,7 +273,7 @@ func (c *Client) UnPauseInstance(uuid string) error {
 
 // DeleteInstance deletes an instance
 func (c *Client) DeleteInstance(uuid string) error {
-	_, err := c.httpRequest("instances/"+uuid, "DELETE", bytes.Buffer{})
+	err := c.doRequest("instances/"+uuid, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
@@ -300,7 +309,7 @@ func (c *Client) CacheImage(imageURL string) error {
 		return err
 	}
 
-	_, err = c.httpRequest("images", "POST", *bytes.NewBuffer(post))
+	err = c.doRequest("images", "POST", *bytes.NewBuffer(post), nil)
 
 	return err
 }
@@ -348,14 +357,31 @@ func (c *Client) getRequest(
 }
 
 func (c *Client) postRequest(object string, uuid string, cmd string) error {
-	_, err := c.httpRequest(object+"/"+uuid+"/"+cmd, "POST", bytes.Buffer{})
+	err := c.doRequest(object+"/"+uuid+"/"+cmd, "POST", bytes.Buffer{}, nil)
 	return err
 }
 
 func (c *Client) doRequest(
 	path, method string, data bytes.Buffer, resp interface{}) error {
 
-	body, err := c.httpRequest(path, method, data)
+	if c.cachedAuth == "" {
+		err := c.requestAuth()
+		if err != nil {
+			return fmt.Errorf("unable to get auth token: %v", err)
+		}
+	}
+
+	body, statusCode, err := c.httpRequest(path, method, data)
+
+	// If auth token has expired, then get a new token
+	if statusCode == http.StatusUnauthorized {
+		if c.requestAuth() != nil {
+			return fmt.Errorf("unable to refresh auth token: %v", err)
+		}
+
+		// Try with new token, if second error occurs it is returned
+		body, _, err = c.httpRequest(path, method, data)
+	}
 
 	// Return on error or if JSON decoding not required
 	if err != nil || resp == nil {
@@ -366,33 +392,73 @@ func (c *Client) doRequest(
 }
 
 func (c *Client) httpRequest(
-	path, method string, body bytes.Buffer) (io.ReadCloser, error) {
+	path, method string, body bytes.Buffer) (io.ReadCloser, int, error) {
 
 	req, err := http.NewRequest(method, c.requestPath(path), &body)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", c.cachedAuth)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, 0, fmt.Errorf("unable to connect to server: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		respBody := new(bytes.Buffer)
 		_, err := respBody.ReadFrom(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Got a non 200 status code: %v",
-				resp.StatusCode)
+			return nil, resp.StatusCode,
+				fmt.Errorf("received non 200 status code: %v",
+					resp.StatusCode)
 		}
-		return nil, fmt.Errorf("Got a non 200 status code: %v - %s",
-			resp.StatusCode, respBody.String())
+		return nil, resp.StatusCode,
+			fmt.Errorf("received non 200 status code: %v - %s",
+				resp.StatusCode, respBody.String())
 	}
-	return resp.Body, nil
+	return resp.Body, 0, nil
 }
 
 func (c *Client) requestPath(path string) string {
 	return fmt.Sprintf("%s:%v/%s", c.hostname, c.port, path)
+}
+
+type authRequest struct {
+	Namespace string `json:"namespace"`
+	// APIKeyName string `json:"unique_name"`
+	APIKey string `json:"token"`
+}
+
+type authResponse struct {
+	Token string `json:"access_token"`
+}
+
+func (c *Client) requestAuth() error {
+	req := &authRequest{
+		Namespace: c.namespace,
+		// APIKeyName: c.apiKeyName,
+		APIKey: c.apiKey,
+	}
+	post, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("unable to marshal auth request: %v", err)
+	}
+
+	body, _, err := c.httpRequest("/auth", "POST", *bytes.NewBuffer(post))
+	if err != nil {
+		return fmt.Errorf("auth request failed: %v", err)
+	}
+
+	resp := authResponse{}
+	err = json.NewDecoder(body).Decode(&resp)
+	if err != nil {
+		return fmt.Errorf("unable to decode response body: %v", err)
+	}
+
+	c.cachedAuth = fmt.Sprintf("Bearer %s", resp.Token)
+
+	return nil
 }
