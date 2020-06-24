@@ -22,18 +22,22 @@ type Client struct {
 	port       int
 	httpClient *http.Client
 	namespace  string
-	password   string
+	apiKeyName string
+	apiKey     string
 	cachedAuth string
 }
 
 // NewClient returns a client ready for use
-func NewClient(hostname string, port int, namespace, password string) *Client {
+func NewClient(hostname string, port int,
+	namespace, apiKeyName, apiKey string) *Client {
+
 	return &Client{
 		hostname:   hostname,
 		port:       port,
 		httpClient: &http.Client{},
 		namespace:  namespace,
-		password:   password,
+		apiKeyName: apiKeyName,
+		apiKey:     apiKey,
 	}
 }
 
@@ -367,7 +371,17 @@ func (c *Client) doRequest(
 		}
 	}
 
-	body, err := c.httpRequest(path, method, data)
+	body, statusCode, err := c.httpRequest(path, method, data)
+
+	// If auth token has expired, then get a new token
+	if statusCode == http.StatusUnauthorized {
+		if c.requestAuth() != nil {
+			return fmt.Errorf("unable to refresh auth token: %v", err)
+		}
+
+		// Try with new token, if second error occurs it is returned
+		body, _, err = c.httpRequest(path, method, data)
+	}
 
 	// Return on error or if JSON decoding not required
 	if err != nil || resp == nil {
@@ -378,11 +392,11 @@ func (c *Client) doRequest(
 }
 
 func (c *Client) httpRequest(
-	path, method string, body bytes.Buffer) (io.ReadCloser, error) {
+	path, method string, body bytes.Buffer) (io.ReadCloser, int, error) {
 
 	req, err := http.NewRequest(method, c.requestPath(path), &body)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -390,20 +404,22 @@ func (c *Client) httpRequest(
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable to connect to server: %v", err)
+		return nil, 0, fmt.Errorf("unable to connect to server: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		respBody := new(bytes.Buffer)
 		_, err := respBody.ReadFrom(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("received non 200 status code: %v",
-				resp.StatusCode)
+			return nil, resp.StatusCode,
+				fmt.Errorf("received non 200 status code: %v",
+					resp.StatusCode)
 		}
-		return nil, fmt.Errorf("received non 200 status code: %v - %s",
-			resp.StatusCode, respBody.String())
+		return nil, resp.StatusCode,
+			fmt.Errorf("received non 200 status code: %v - %s",
+				resp.StatusCode, respBody.String())
 	}
-	return resp.Body, nil
+	return resp.Body, 0, nil
 }
 
 func (c *Client) requestPath(path string) string {
@@ -412,7 +428,8 @@ func (c *Client) requestPath(path string) string {
 
 type authRequest struct {
 	Namespace string `json:"namespace"`
-	Password  string `json:"password"`
+	// APIKeyName string `json:"unique_name"`
+	APIKey string `json:"token"`
 }
 
 type authResponse struct {
@@ -422,14 +439,15 @@ type authResponse struct {
 func (c *Client) requestAuth() error {
 	req := &authRequest{
 		Namespace: c.namespace,
-		Password:  c.password,
+		// APIKeyName: c.apiKeyName,
+		APIKey: c.apiKey,
 	}
 	post, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("unable to marshal auth request: %v", err)
 	}
 
-	body, err := c.httpRequest("/auth", "POST", *bytes.NewBuffer(post))
+	body, _, err := c.httpRequest("/auth", "POST", *bytes.NewBuffer(post))
 	if err != nil {
 		return fmt.Errorf("auth request failed: %v", err)
 	}

@@ -52,7 +52,8 @@ func main() {
 		"http://localhost",
 		13000,
 		os.Getenv("SF_NAMESPACE"),
-		os.Getenv("SF_PASSWORD"),
+		os.Getenv("SF_KEYNAME"),
+		os.Getenv("SF_KEY"),
 	)
 
 	fmt.Println("*******************************")
