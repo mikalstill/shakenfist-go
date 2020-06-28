@@ -429,7 +429,7 @@ func (c *Client) requestPath(path string) string {
 type authRequest struct {
 	Namespace string `json:"namespace"`
 	// APIKeyName string `json:"unique_name"`
-	APIKey string `json:"token"`
+	APIKey string `json:"key"`
 }
 
 type authResponse struct {

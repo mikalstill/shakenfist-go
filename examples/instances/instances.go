@@ -51,9 +51,9 @@ func main() {
 	c := client.NewClient(
 		"http://localhost",
 		13000,
-		os.Getenv("SF_NAMESPACE"),
-		os.Getenv("SF_KEYNAME"),
-		os.Getenv("SF_KEY"),
+		os.Getenv("SHAKENFIST_NAMESPACE"),
+		os.Getenv("SHAKENFIST_KEYNAME"),
+		os.Getenv("SHAKENFIST_KEY"),
 	)
 
 	fmt.Println("*******************************")
