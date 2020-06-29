@@ -32,18 +32,21 @@ func printInstance(instance client.Instance) {
 
 func printInterfaces(interfaces []client.NetworkInterface) {
 	for _, iface := range interfaces {
-		fmt.Printf("  - UUID: %s\n", iface.UUID)
-		fmt.Printf("    Network UUID: %s\n", iface.NetworkUUID)
-		fmt.Printf("    Instance UUID: %s\n", iface.InstanceUUID)
-		fmt.Printf("    MAC Address: %s\n", iface.MACAddress)
-		fmt.Printf("    IPv4 Address: %s\n", iface.IPv4)
-		fmt.Printf("    Order: %d\n", iface.Order)
-		fmt.Printf("    Floating Address: %s\n", iface.Floating)
-		fmt.Printf("    State: %s\n", iface.State)
-		fmt.Printf("    StateUpdated: %s\n", time.Unix(int64(iface.StateUpdated), 0))
-		fmt.Printf("    Model: %s\n", iface.Model)
+		printInterface(iface)
 	}
+}
 
+func printInterface(iface client.NetworkInterface) {
+	fmt.Printf("  - UUID: %s\n", iface.UUID)
+	fmt.Printf("    Network UUID: %s\n", iface.NetworkUUID)
+	fmt.Printf("    Instance UUID: %s\n", iface.InstanceUUID)
+	fmt.Printf("    MAC Address: %s\n", iface.MACAddress)
+	fmt.Printf("    IPv4 Address: %s\n", iface.IPv4)
+	fmt.Printf("    Order: %d\n", iface.Order)
+	fmt.Printf("    Floating Address: %s\n", iface.Floating)
+	fmt.Printf("    State: %s\n", iface.State)
+	fmt.Printf("    StateUpdated: %s\n", time.Unix(int64(iface.StateUpdated), 0))
+	fmt.Printf("    Model: %s\n", iface.Model)
 	fmt.Println("")
 }
 
@@ -52,7 +55,6 @@ func main() {
 		"http://localhost",
 		13000,
 		os.Getenv("SHAKENFIST_NAMESPACE"),
-		os.Getenv("SHAKENFIST_KEYNAME"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
 
@@ -128,6 +130,16 @@ func main() {
 	}
 	fmt.Println("Interfaces:")
 	printInterfaces(interfaces)
+
+	fmt.Println("******************************")
+	fmt.Println("*** Get specific interface ***")
+	fmt.Println("******************************")
+	iface, err := c.GetInterface(interfaces[0].UUID)
+	if err != nil {
+		fmt.Println("GetInterface request error: ", err)
+		return
+	}
+	printInterface(iface)
 
 	fmt.Println("****************************")
 	fmt.Println("*** Defloat the instance ***")

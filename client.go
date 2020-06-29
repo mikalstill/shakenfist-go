@@ -29,14 +29,13 @@ type Client struct {
 
 // NewClient returns a client ready for use
 func NewClient(hostname string, port int,
-	namespace, apiKeyName, apiKey string) *Client {
+	namespace, apiKey string) *Client {
 
 	return &Client{
 		hostname:   hostname,
 		port:       port,
 		httpClient: &http.Client{},
 		namespace:  namespace,
-		apiKeyName: apiKeyName,
 		apiKey:     apiKey,
 	}
 }
@@ -172,6 +171,15 @@ func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) 
 	err := c.doRequest(path, "GET", bytes.Buffer{}, &interfaces)
 
 	return interfaces, err
+}
+
+// GetInterface fetches a specific network interface
+func (c *Client) GetInterface(uuid string) (NetworkInterface, error) {
+	path := "interfaces/" + uuid
+	iface := NetworkInterface{}
+	err := c.doRequest(path, "GET", bytes.Buffer{}, &iface)
+
+	return iface, err
 }
 
 type createInstanceRequest struct {
@@ -439,8 +447,7 @@ type authResponse struct {
 func (c *Client) requestAuth() error {
 	req := &authRequest{
 		Namespace: c.namespace,
-		// APIKeyName: c.apiKeyName,
-		APIKey: c.apiKey,
+		APIKey:    c.apiKey,
 	}
 	post, err := json.Marshal(req)
 	if err != nil {

@@ -26,7 +26,6 @@ func main() {
 		"http://localhost",
 		13000,
 		os.Getenv("SHAKENFIST_NAMESPACE"),
-		os.Getenv("SHAKENFIST_KEYNAME"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
 
