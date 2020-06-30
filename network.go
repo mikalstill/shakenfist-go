@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// Network is a definition of a network
+// Network is a definition of a network.
 type Network struct {
 	UUID            string  `json:"uuid"`
 	Name            string  `json:"name"`
@@ -19,14 +19,14 @@ type Network struct {
 	StateUpdated    float64 `json:"state_updated"`
 }
 
-// GetNetworks fetches a list of networks
+// GetNetworks fetches a list of networks.
 func (c *Client) GetNetworks() ([]Network, error) {
 	networks := []Network{}
 	err := c.doRequest("networks", "GET", bytes.Buffer{}, &networks)
 	return networks, err
 }
 
-// GetNetwork fetches a specific instance by UUID
+// GetNetwork fetches a specific instance by UUID.
 func (c *Client) GetNetwork(uuid string) (Network, error) {
 	network := Network{}
 	err := c.doRequest("networks/"+uuid, "GET", bytes.Buffer{}, &network)
@@ -40,7 +40,7 @@ type createNetworkRequest struct {
 	ProvideNAT  bool   `json:"provide_nat"`
 }
 
-// CreateNetwork creates a new network
+// CreateNetwork creates a new network.
 func (c *Client) CreateNetwork(netblock string, provideDHCP bool, provideNAT bool,
 	name string) (Network, error) {
 	request := &createNetworkRequest{
@@ -59,14 +59,14 @@ func (c *Client) CreateNetwork(netblock string, provideDHCP bool, provideNAT boo
 	return network, err
 }
 
-// DeleteNetwork removes a network with a specified UUID
+// DeleteNetwork removes a network with a specified UUID.
 func (c *Client) DeleteNetwork(uuid string) error {
 	path := "networks/" + uuid
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
-// NetworkSpec is a definition of an instance network connect
+// NetworkSpec is a definition of an instance network connect.
 type NetworkSpec struct {
 	NetworkUUID string `json:"network_uuid"`
 	Address     string `json:"address"`
@@ -74,7 +74,7 @@ type NetworkSpec struct {
 	Model       string `json:"model"`
 }
 
-// NetworkInterface is a definition of an network interface for an instance
+// NetworkInterface is a definition of an network interface for an instance.
 type NetworkInterface struct {
 	UUID         string  `json:"uuid"`
 	NetworkUUID  string  `json:"network_uuid"`
@@ -88,7 +88,7 @@ type NetworkInterface struct {
 	Model        string  `json:"model"`
 }
 
-// GetInstanceInterfaces fetches a list of network interfaces for an instance
+// GetInstanceInterfaces fetches a list of network interfaces for an instance.
 func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) {
 	path := "instances/" + uuid + "/interfaces"
 	interfaces := []NetworkInterface{}
@@ -97,7 +97,7 @@ func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) 
 	return interfaces, err
 }
 
-// GetInterface fetches a specific network interface
+// GetInterface fetches a specific network interface.
 func (c *Client) GetInterface(uuid string) (NetworkInterface, error) {
 	path := "interfaces/" + uuid
 	iface := NetworkInterface{}
@@ -106,17 +106,17 @@ func (c *Client) GetInterface(uuid string) (NetworkInterface, error) {
 	return iface, err
 }
 
-// FloatInterface adds a floating IP to an interface
+// FloatInterface adds a floating IP to an interface.
 func (c *Client) FloatInterface(interfaceUUID string) error {
 	return c.postRequest("interfaces", interfaceUUID, "float")
 }
 
-// DefloatInterface removes a floating IP from an interface
+// DefloatInterface removes a floating IP from an interface.
 func (c *Client) DefloatInterface(interfaceUUID string) error {
 	return c.postRequest("interfaces", interfaceUUID, "defloat")
 }
 
-// GetNetworkEvents fetches events that have occurred on a specific network
+// GetNetworkEvents fetches events that have occurred on a specific network.
 func (c *Client) GetNetworkEvents(uuid string) ([]Event, error) {
 	events := []Event{}
 	err := c.doRequest("network/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
