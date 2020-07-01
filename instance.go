@@ -155,7 +155,7 @@ type Event struct {
 	FQDN      string  `json:"fqdn"`
 	Operation string  `json:"operation"`
 	Phase     string  `json:"phase"`
-	Duration  int     `json:"duration"`
+	Duration  float32 `json:"duration"`
 	Message   string  `json:"message"`
 }
 

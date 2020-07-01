@@ -3,7 +3,13 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 )
+
+// Generic structure to send a UUID.
+type reqUUID struct {
+	UUID string `json:"uuid"`
+}
 
 // Network is a definition of a network.
 type Network struct {
@@ -119,6 +125,51 @@ func (c *Client) DefloatInterface(interfaceUUID string) error {
 // GetNetworkEvents fetches events that have occurred on a specific network.
 func (c *Client) GetNetworkEvents(uuid string) ([]Event, error) {
 	events := []Event{}
-	err := c.doRequest("network/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
+	err := c.getRequest("networks", uuid, "events", &events)
 	return events, err
+}
+
+// DeployNetworkNode sends a DeployNetworkNode command to Shaken Fist.
+func (c *Client) DeployNetworkNode(uuid string) error {
+	req := &reqUUID{
+		UUID: uuid,
+	}
+
+	put, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("unable to marshal data: %v", err)
+	}
+
+	err = c.doRequest("deploy_network_node", "PUT", *bytes.NewBuffer(put), nil)
+	return err
+}
+
+// UpdateDHCP sends an UpdateDHCP command to Shaken Fist.
+func (c *Client) UpdateDHCP(uuid string) error {
+	req := &reqUUID{
+		UUID: uuid,
+	}
+
+	put, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("unable to marshal data: %v", err)
+	}
+
+	err = c.doRequest("update_dhcp", "PUT", *bytes.NewBuffer(put), nil)
+	return err
+}
+
+// RemoveDHCP sends an RemoveDHCP command to Shaken Fist.
+func (c *Client) RemoveDHCP(uuid string) error {
+	req := &reqUUID{
+		UUID: uuid,
+	}
+
+	put, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("unable to marshal data: %v", err)
+	}
+
+	err = c.doRequest("remove_dhcp", "PUT", *bytes.NewBuffer(put), nil)
+	return err
 }
