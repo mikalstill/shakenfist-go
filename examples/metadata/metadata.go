@@ -30,7 +30,7 @@ func main() {
 	fmt.Println("************************************")
 	fmt.Println("*** Set metadata on the instance ***")
 	fmt.Println("************************************")
-	fmt.Println("Set person='old man")
+	fmt.Println("Set person='old-man'")
 	err = c.SetMetadata(client.TypeInstance, instance.UUID, "person", "old man")
 	if err != nil {
 		fmt.Println("Error setting metadata 'person': ", err)
@@ -57,8 +57,34 @@ func main() {
 	for k, v := range meta {
 		fmt.Println("   ", k, "=", v)
 	}
+
 	fmt.Println("")
 
+	fmt.Println("***************************************")
+	fmt.Println("*** Delete metadata on the instance ***")
+	fmt.Println("***************************************")
+
+	err = c.DeleteMetadata(client.TypeInstance, instance.UUID, "action")
+	if err != nil {
+		fmt.Println("Error deleting metadata 'action': ", err)
+		return
+	}
+
+	fmt.Println("*******************************************")
+	fmt.Println("*** Retrieve metadata from the instance ***")
+	fmt.Println("*******************************************")
+	meta, err = c.GetMetadata(client.TypeInstance, instance.UUID)
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
+	}
+
+	fmt.Println("")
 	fmt.Println("***************************")
 	fmt.Println("*** Delete the instance ***")
 	fmt.Println("***************************")
