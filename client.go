@@ -12,6 +12,19 @@ import (
 	"net/http"
 )
 
+// ResourceType is a type of Shaken Fist resource
+type ResourceType int
+
+const (
+	TypeNamespace ResourceType = iota
+	TypeInstance
+	TypeNetwork
+)
+
+func (r ResourceType) String() string {
+	return [...]string{"namespace", "instances", "networks"}[r]
+}
+
 // Client holds all of the information required to connect to
 // the server
 type Client struct {

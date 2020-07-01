@@ -31,14 +31,14 @@ func main() {
 	fmt.Println("*** Set metadata on the instance ***")
 	fmt.Println("************************************")
 	fmt.Println("Set person='old man")
-	err = c.SetMetadata(instance.UUID, "person", "old man")
+	err = c.SetMetadata(client.TypeInstance, instance.UUID, "person", "old man")
 	if err != nil {
 		fmt.Println("Error setting metadata 'person': ", err)
 		return
 	}
 
 	fmt.Println("Set action='shakes fist'")
-	err = c.SetMetadata(instance.UUID, "action", "shakes fist")
+	err = c.SetMetadata(client.TypeInstance, instance.UUID, "action", "shakes fist")
 	if err != nil {
 		fmt.Println("Error setting metadata 'action': ", err)
 		return
@@ -47,7 +47,7 @@ func main() {
 	fmt.Println("*******************************************")
 	fmt.Println("*** Retrieve metadata from the instance ***")
 	fmt.Println("*******************************************")
-	meta, err := c.GetMetadata(instance.UUID)
+	meta, err := c.GetMetadata(client.TypeInstance, instance.UUID)
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return

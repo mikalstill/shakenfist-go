@@ -12,8 +12,8 @@ import (
 type Metadata map[string]string
 
 // GetMetadata retrieves the metadata attached to an instance.
-func (c *Client) GetMetadata(instanceUUID string) (Metadata, error) {
-	path := "instances/" + instanceUUID + "/metadata"
+func (c *Client) GetMetadata(res ResourceType, uuid string) (Metadata, error) {
+	path := res.String() + "/" + uuid + "/metadata"
 
 	meta := Metadata{}
 	if err := c.doRequest(path, "GET", bytes.Buffer{}, &meta); err != nil {
@@ -28,8 +28,8 @@ type reqMeta struct {
 }
 
 // SetMetadata sets key-value metadata on an instance.
-func (c *Client) SetMetadata(instanceUUID, key, value string) error {
-	path := "instances/" + instanceUUID + "/metadata/" + key
+func (c *Client) SetMetadata(res ResourceType, uuid, key, value string) error {
+	path := res.String() + "/" + uuid + "/metadata/" + key
 
 	req := &reqMeta{
 		Value: value,
