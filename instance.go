@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// DiskSpec is a definition of an instance disk
+// DiskSpec is a definition of an instance disk.
 type DiskSpec struct {
 	Base string `json:"base"`
 	Size int    `json:"size"`
@@ -13,7 +13,7 @@ type DiskSpec struct {
 	Type string `json:"type"`
 }
 
-// Instance is a definition of an instance
+// Instance is a definition of an instance.
 type Instance struct {
 	UUID         string                 `json:"uuid"`
 	Name         string                 `json:"name"`
@@ -30,7 +30,7 @@ type Instance struct {
 	StateUpdated float64                `json:"state_updated"`
 }
 
-// GetInstances fetches a list of instances
+// GetInstances fetches a list of instances.
 func (c *Client) GetInstances() ([]Instance, error) {
 	instances := []Instance{}
 	err := c.doRequest("instances", "GET", bytes.Buffer{}, &instances)
@@ -38,7 +38,7 @@ func (c *Client) GetInstances() ([]Instance, error) {
 	return instances, err
 }
 
-// GetInstance fetches a specific instance by UUID
+// GetInstance fetches a specific instance by UUID.
 func (c *Client) GetInstance(uuid string) (Instance, error) {
 	instance := Instance{}
 	err := c.doRequest("instances/"+uuid, "GET", bytes.Buffer{}, &instance)
@@ -56,7 +56,7 @@ type createInstanceRequest struct {
 	UserData string        `json:"user_data"`
 }
 
-// CreateInstance creates a new instance
+// CreateInstance creates a new instance.
 func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	Networks []NetworkSpec, Disks []DiskSpec, SSHKey string,
 	UserData string) (Instance, error) {
@@ -80,12 +80,12 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	return instance, nil
 }
 
-// snapshotRequest defines options when making a snapshot of an instance
+// snapshotRequest defines options when making a snapshot of an instance.
 type snapshotRequest struct {
 	All bool `json:"all"`
 }
 
-// SnapshotInstance takes a snapshot of an instance
+// SnapshotInstance takes a snapshot of an instance.
 func (c *Client) SnapshotInstance(uuid string, all bool) error {
 	path := "instances/" + uuid + "/snapshot"
 
@@ -102,14 +102,14 @@ func (c *Client) SnapshotInstance(uuid string, all bool) error {
 	return err
 }
 
-// Snapshot defines a snapshot of an instance
+// Snapshot defines a snapshot of an instance.
 type Snapshot struct {
 	UUID    string `json:"uuid"`
 	Device  string `json:"device"`
 	Created int64  `json:"created"`
 }
 
-// GetInstanceSnapshots fetches a list of instance snapshots
+// GetInstanceSnapshots fetches a list of instance snapshots.
 func (c *Client) GetInstanceSnapshots(uuid string) ([]Snapshot, error) {
 	snapshots := []Snapshot{}
 	path := "instances/" + uuid + "/snapshot"
@@ -118,60 +118,60 @@ func (c *Client) GetInstanceSnapshots(uuid string) ([]Snapshot, error) {
 	return snapshots, err
 }
 
-// RebootInstance reboots an instance
+// RebootInstance reboots an instance.
 func (c *Client) RebootInstance(uuid string) error {
 	return c.postRequest("instances", uuid, "reboot")
 }
 
-// PowerOffInstance powers on an instance
+// PowerOffInstance powers on an instance.
 func (c *Client) PowerOffInstance(uuid string) error {
 	return c.postRequest("instances", uuid, "poweroff")
 }
 
-// PowerOnInstance powers on an instance
+// PowerOnInstance powers on an instance.
 func (c *Client) PowerOnInstance(uuid string) error {
 	return c.postRequest("instances", uuid, "poweron")
 }
 
-// PauseInstance will pause an instance
+// PauseInstance will pause an instance.
 func (c *Client) PauseInstance(uuid string) error {
 	return c.postRequest("instances", uuid, "pause")
 }
 
-// UnPauseInstance will unpause an instance
+// UnPauseInstance will unpause an instance.
 func (c *Client) UnPauseInstance(uuid string) error {
 	return c.postRequest("instances", uuid, "unpause")
 }
 
-// DeleteInstance deletes an instance
+// DeleteInstance deletes an instance.
 func (c *Client) DeleteInstance(uuid string) error {
 	err := c.doRequest("instances/"+uuid, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
-// Event defines an event that occurred on an instance
+// Event defines an event that occurred on an instance.
 type Event struct {
 	Timestamp float32 `json:"timestamp"`
 	FQDN      string  `json:"fqdn"`
 	Operation string  `json:"operation"`
 	Phase     string  `json:"phase"`
-	Duration  int     `json:"duration"`
+	Duration  float32 `json:"duration"`
 	Message   string  `json:"message"`
 }
 
-// GetInstanceEvents fetches events that have occurred on a specific instance
+// GetInstanceEvents fetches events that have occurred on a specific instance.
 func (c *Client) GetInstanceEvents(uuid string) ([]Event, error) {
 	events := []Event{}
 	err := c.doRequest("instances/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
 	return events, err
 }
 
-// ImageRequest defines a link to an image
+// ImageRequest defines a link to an image.
 type imageRequest struct {
 	URL string `json:"url"`
 }
 
-// CacheImage will cache an image
+// CacheImage will cache an image.
 func (c *Client) CacheImage(imageURL string) error {
 	request := &imageRequest{
 		URL: imageURL,

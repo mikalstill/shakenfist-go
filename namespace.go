@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// GetNamespaces fetches the list of Namespaces
+// GetNamespaces fetches a list of all Namespaces.
 func (c *Client) GetNameSpaces() ([]string, error) {
 	namespaces := []string{}
 	err := c.doRequest("auth/namespace", "GET", bytes.Buffer{}, &namespaces)
@@ -20,6 +20,9 @@ type createNamespaceReq struct {
 }
 
 // CreateNameSpace creates a new Namespace, KeyName and Key.
+//
+// Use this function to create a new Namespace and also to create
+// a new key.
 func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
 	req := &createNamespaceReq{
 		Namespace: namespace,
@@ -40,7 +43,12 @@ func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
 	return nil
 }
 
-// DeleteNameSpace attempts to delete the namespace from ShakenFist
+// UpdateNameSpaceKey will modify an existing Key within a Namespace.
+func (c *Client) UpdateNameSpaceKey(namespace, keyName, key string) error {
+	return c.CreateNameSpace(namespace, keyName, key)
+}
+
+// DeleteNameSpace attempts to delete the namespace from Shaken Fist.
 func (c *Client) DeleteNameSpace(namespace string) error {
 	path := "auth/namespace/" + namespace
 
@@ -52,7 +60,7 @@ func (c *Client) DeleteNameSpace(namespace string) error {
 	return nil
 }
 
-// DeleteNameSpaceKey attempts to delete the key from the specified namespace
+// DeleteNameSpaceKey attempts to delete the key from the specified namespace.
 func (c *Client) DeleteNameSpaceKey(namespace, keyName string) error {
 	path := "auth/namespace/" + namespace + "/" + keyName
 

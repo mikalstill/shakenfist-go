@@ -43,7 +43,7 @@ func NewClient(hostname string, port int,
 func (c *Client) getRequest(
 	object, uuid string, cmd string, resp interface{}) error {
 
-	err := c.doRequest("GET", object+"/"+uuid+"/"+cmd, bytes.Buffer{}, resp)
+	err := c.doRequest(object+"/"+uuid+"/"+cmd, "GET", bytes.Buffer{}, resp)
 	return err
 }
 
