@@ -7,7 +7,7 @@ import (
 )
 
 // GetNamespaces fetches a list of all Namespaces.
-func (c *Client) GetNameSpaces() ([]string, error) {
+func (c *Client) GetNamespaces() ([]string, error) {
 	namespaces := []string{}
 	err := c.doRequest("auth/namespace", "GET", bytes.Buffer{}, &namespaces)
 	return namespaces, err
@@ -20,7 +20,7 @@ type createNamespaceReq struct {
 }
 
 // CreateNameSpace creates a new Namespace.
-func (c *Client) CreateNameSpace(namespace string) error {
+func (c *Client) CreateNamespace(namespace string) error {
 	req := &createNamespaceReq{
 		Namespace: namespace,
 	}
@@ -43,7 +43,7 @@ type createNamespaceKeyReq struct {
 }
 
 // CreateNameSpaceKey creates a key within a namespace.
-func (c *Client) CreateNameSpaceKey(namespace, keyName, key string) error {
+func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
 	req := &createNamespaceKeyReq{
 		Key: key,
 	}
@@ -63,8 +63,8 @@ func (c *Client) CreateNameSpaceKey(namespace, keyName, key string) error {
 }
 
 // UpdateNameSpaceKey will modify an existing Key within a Namespace.
-func (c *Client) UpdateNameSpaceKey(namespace, keyName, key string) error {
-	return c.CreateNameSpaceKey(namespace, keyName, key)
+func (c *Client) UpdateNamespaceKey(namespace, keyName, key string) error {
+	return c.CreateNamespaceKey(namespace, keyName, key)
 }
 
 // GetNameSpaceKeys retrieves a list of keys within the namespace
@@ -75,7 +75,7 @@ func (c *Client) GetNamespaceKeys(namespace string) ([]string, error) {
 }
 
 // DeleteNameSpace attempts to delete the namespace from Shaken Fist.
-func (c *Client) DeleteNameSpace(namespace string) error {
+func (c *Client) DeleteNamespace(namespace string) error {
 	path := "auth/namespace/" + namespace
 
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
@@ -87,7 +87,7 @@ func (c *Client) DeleteNameSpace(namespace string) error {
 }
 
 // DeleteNameSpaceKey attempts to delete the key from the specified namespace.
-func (c *Client) DeleteNameSpaceKey(namespace, keyName string) error {
+func (c *Client) DeleteNamespaceKey(namespace, keyName string) error {
 	path := "auth/namespace/" + namespace + "/key/" + keyName
 
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)

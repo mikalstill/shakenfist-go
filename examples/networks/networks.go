@@ -87,16 +87,14 @@ func main() {
 	fmt.Println("*** Set metadata on the network ***")
 	fmt.Println("***********************************")
 	fmt.Println("Set nets='old-people'")
-	err = c.SetMetadata(client.TypeNetwork,
-		createdNetwork.UUID, "nets", "old people")
+	err = c.SetNetworkMetadata(createdNetwork.UUID, "nets", "old people")
 	if err != nil {
 		fmt.Println("Error setting metadata 'nets': ", err)
 		return
 	}
 
 	fmt.Println("Set action='shakes fist'")
-	err = c.SetMetadata(client.TypeNetwork,
-		createdNetwork.UUID, "action", "shakes fist")
+	err = c.SetNetworkMetadata(createdNetwork.UUID, "action", "shakes fist")
 	if err != nil {
 		fmt.Println("Error setting metadata 'action': ", err)
 		return
@@ -105,7 +103,7 @@ func main() {
 	fmt.Println("******************************************")
 	fmt.Println("*** Retrieve metadata from the network ***")
 	fmt.Println("******************************************")
-	meta, err := c.GetMetadata(client.TypeNetwork, createdNetwork.UUID)
+	meta, err := c.GetNetworkMetadata(createdNetwork.UUID)
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return
@@ -122,7 +120,7 @@ func main() {
 	fmt.Println("*** Delete metadata on the network ***")
 	fmt.Println("**************************************")
 
-	err = c.DeleteMetadata(client.TypeNetwork, createdNetwork.UUID, "action")
+	err = c.DeleteNetworkMetadata(createdNetwork.UUID, "action")
 	if err != nil {
 		fmt.Println("Error deleting metadata 'action': ", err)
 		return
@@ -131,7 +129,7 @@ func main() {
 	fmt.Println("******************************************")
 	fmt.Println("*** Retrieve metadata from the network ***")
 	fmt.Println("******************************************")
-	meta, err = c.GetMetadata(client.TypeNetwork, createdNetwork.UUID)
+	meta, err = c.GetNetworkMetadata(createdNetwork.UUID)
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return

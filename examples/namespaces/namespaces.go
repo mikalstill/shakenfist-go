@@ -29,7 +29,7 @@ func main() {
 	fmt.Println("******************************")
 	fmt.Println("*** Get list of namespaces ***")
 	fmt.Println("******************************")
-	namespaces, err := c.GetNameSpaces()
+	namespaces, err := c.GetNamespaces()
 	if err != nil {
 		fmt.Println("GetNamespaces request error:", err)
 		return
@@ -42,7 +42,7 @@ func main() {
 	fmt.Println("****************************")
 	fmt.Println("*** Create new namespace ***")
 	fmt.Println("****************************")
-	err = c.CreateNameSpace("example-testspace")
+	err = c.CreateNamespace("example-testspace")
 	if err != nil {
 		fmt.Println("Create new namespace:", err)
 		return
@@ -51,7 +51,7 @@ func main() {
 	fmt.Println("******************************")
 	fmt.Println("*** Get list of namespaces ***")
 	fmt.Println("******************************")
-	namespaces, err = c.GetNameSpaces()
+	namespaces, err = c.GetNamespaces()
 	if err != nil {
 		fmt.Println("GetNamespaces request error:", err)
 		return
@@ -64,13 +64,13 @@ func main() {
 	fmt.Println("**************************")
 	fmt.Println("*** Create access keys ***")
 	fmt.Println("**************************")
-	err = c.CreateNameSpaceKey("example-testspace", "testkeyname", "testkey")
+	err = c.CreateNamespaceKey("example-testspace", "testkeyname", "testkey")
 	if err != nil {
 		fmt.Println("Create first key:", err)
 		return
 	}
 
-	err = c.CreateNameSpaceKey("example-testspace", "key2", "key2long")
+	err = c.CreateNamespaceKey("example-testspace", "key2", "key2long")
 	if err != nil {
 		fmt.Println("Create second key:", err)
 		return
@@ -93,7 +93,7 @@ func main() {
 	fmt.Println("****************************************")
 	fmt.Println("*** Delete access key from namespace ***")
 	fmt.Println("****************************************")
-	err = c.DeleteNameSpaceKey("example-testspace", "testkeyname")
+	err = c.DeleteNamespaceKey("example-testspace", "testkeyname")
 	if err != nil {
 		fmt.Println("Delete key error: ", err)
 		return
@@ -118,16 +118,14 @@ func main() {
 	fmt.Println("*** Set metadata on the namespace ***")
 	fmt.Println("*************************************")
 	fmt.Println("Set home='old-people'")
-	err = c.SetMetadata(client.TypeNamespace,
-		"example-testspace", "home", "old-people")
+	err = c.SetNamespaceMetadata("example-testspace", "home", "old-people")
 	if err != nil {
 		fmt.Println("Error setting metadata 'person': ", err)
 		return
 	}
 
 	fmt.Println("Set exercise='shakes fist'")
-	err = c.SetMetadata(client.TypeNamespace,
-		"example-testspace", "exercise", "shakes fist")
+	err = c.SetNamespaceMetadata("example-testspace", "exercise", "shakes fist")
 	if err != nil {
 		fmt.Println("Error setting metadata 'exercise': ", err)
 		return
@@ -136,7 +134,7 @@ func main() {
 	fmt.Println("********************************************")
 	fmt.Println("*** Retrieve metadata from the namespace ***")
 	fmt.Println("********************************************")
-	meta, err := c.GetMetadata(client.TypeNamespace, "example-testspace")
+	meta, err := c.GetNamespaceMetadata("example-testspace")
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return
@@ -153,7 +151,7 @@ func main() {
 	fmt.Println("*** Delete metadata on the namespace ***")
 	fmt.Println("****************************************")
 
-	err = c.DeleteMetadata(client.TypeNamespace, "example-testspace", "exercise")
+	err = c.DeleteNamespaceMetadata("example-testspace", "exercise")
 	if err != nil {
 		fmt.Println("Error deleting metadata 'exercise': ", err)
 		return
@@ -162,7 +160,7 @@ func main() {
 	fmt.Println("********************************************")
 	fmt.Println("*** Retrieve metadata from the namespace ***")
 	fmt.Println("********************************************")
-	meta, err = c.GetMetadata(client.TypeNamespace, "example-testspace")
+	meta, err = c.GetNamespaceMetadata("example-testspace")
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return
@@ -176,7 +174,7 @@ func main() {
 	fmt.Println("************************")
 	fmt.Println("*** Delete namespace ***")
 	fmt.Println("************************")
-	if err = c.DeleteNameSpace("example-testspace"); err != nil {
+	if err = c.DeleteNamespace("example-testspace"); err != nil {
 		fmt.Println("Delete namespace error: ", err)
 		return
 	}
@@ -184,7 +182,7 @@ func main() {
 	fmt.Println("******************************")
 	fmt.Println("*** Get list of namespaces ***")
 	fmt.Println("******************************")
-	namespaces, err = c.GetNameSpaces()
+	namespaces, err = c.GetNamespaces()
 	if err != nil {
 		fmt.Println("GetNamespaces request error:", err)
 		return
