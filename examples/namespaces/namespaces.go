@@ -61,9 +61,9 @@ func main() {
 		fmt.Println(n)
 	}
 
-	fmt.Println("*******************")
-	fmt.Println("*** Create keys ***")
-	fmt.Println("*******************")
+	fmt.Println("**************************")
+	fmt.Println("*** Create access keys ***")
+	fmt.Println("**************************")
 	err = c.CreateNameSpaceKey("example-testspace", "testkeyname", "testkey")
 	if err != nil {
 		fmt.Println("Create first key:", err)
@@ -76,9 +76,9 @@ func main() {
 		return
 	}
 
-	fmt.Println("************************")
-	fmt.Println("*** Get list of keys ***")
-	fmt.Println("************************")
+	fmt.Println("*******************************")
+	fmt.Println("*** Get list of access keys ***")
+	fmt.Println("*******************************")
 	keys, err := c.GetNamespaceKeys("example-testspace")
 	if err != nil {
 		fmt.Println("GetNamespaceKeys request error:", err)
@@ -90,18 +90,18 @@ func main() {
 		fmt.Println("   ", n)
 	}
 
-	fmt.Println("*******************************")
-	fmt.Println("*** Delete key in namespace ***")
-	fmt.Println("*******************************")
+	fmt.Println("****************************************")
+	fmt.Println("*** Delete access key from namespace ***")
+	fmt.Println("****************************************")
 	err = c.DeleteNameSpaceKey("example-testspace", "testkeyname")
 	if err != nil {
 		fmt.Println("Delete key error: ", err)
 		return
 	}
 
-	fmt.Println("************************")
-	fmt.Println("*** Get list of keys ***")
-	fmt.Println("************************")
+	fmt.Println("*******************************")
+	fmt.Println("*** Get list of access keys ***")
+	fmt.Println("*******************************")
 	keys, err = c.GetNamespaceKeys("example-testspace")
 	if err != nil {
 		fmt.Println("GetNamespaceKeys request error:", err)
@@ -111,6 +111,66 @@ func main() {
 	fmt.Println("Keys:")
 	for _, n := range keys {
 		fmt.Println("   ", n)
+	}
+
+	fmt.Print("\n\n")
+	fmt.Println("*************************************")
+	fmt.Println("*** Set metadata on the namespace ***")
+	fmt.Println("*************************************")
+	fmt.Println("Set home='old-people'")
+	err = c.SetMetadata(client.TypeNamespace,
+		"example-testspace", "home", "old-people")
+	if err != nil {
+		fmt.Println("Error setting metadata 'person': ", err)
+		return
+	}
+
+	fmt.Println("Set exercise='shakes fist'")
+	err = c.SetMetadata(client.TypeNamespace,
+		"example-testspace", "exercise", "shakes fist")
+	if err != nil {
+		fmt.Println("Error setting metadata 'exercise': ", err)
+		return
+	}
+
+	fmt.Println("********************************************")
+	fmt.Println("*** Retrieve metadata from the namespace ***")
+	fmt.Println("********************************************")
+	meta, err := c.GetMetadata(client.TypeNamespace, "example-testspace")
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
+	}
+
+	fmt.Println("")
+
+	fmt.Println("****************************************")
+	fmt.Println("*** Delete metadata on the namespace ***")
+	fmt.Println("****************************************")
+
+	err = c.DeleteMetadata(client.TypeNamespace, "example-testspace", "exercise")
+	if err != nil {
+		fmt.Println("Error deleting metadata 'exercise': ", err)
+		return
+	}
+
+	fmt.Println("********************************************")
+	fmt.Println("*** Retrieve metadata from the namespace ***")
+	fmt.Println("********************************************")
+	meta, err = c.GetMetadata(client.TypeNamespace, "example-testspace")
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
 	}
 
 	fmt.Println("************************")

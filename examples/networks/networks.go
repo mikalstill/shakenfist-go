@@ -74,13 +74,73 @@ func main() {
 	fmt.Println("******************************")
 	fmt.Println("*** Get a specific network ***")
 	fmt.Println("******************************")
-	fmt.Printf("Requesting network: %v\n", networks[0].UUID)
-	network, err := c.GetNetwork(networks[0].UUID)
+	fmt.Printf("Requesting network: %v\n", createdNetwork.UUID)
+	network, err := c.GetNetwork(createdNetwork.UUID)
 	if err != nil {
 		fmt.Println("GetNetwork request error: ", err)
 		return
 	}
 	printNetwork(network)
+
+	fmt.Print("\n\n")
+	fmt.Println("***********************************")
+	fmt.Println("*** Set metadata on the network ***")
+	fmt.Println("***********************************")
+	fmt.Println("Set nets='old-people'")
+	err = c.SetMetadata(client.TypeNetwork,
+		createdNetwork.UUID, "nets", "old people")
+	if err != nil {
+		fmt.Println("Error setting metadata 'nets': ", err)
+		return
+	}
+
+	fmt.Println("Set action='shakes fist'")
+	err = c.SetMetadata(client.TypeNetwork,
+		createdNetwork.UUID, "action", "shakes fist")
+	if err != nil {
+		fmt.Println("Error setting metadata 'action': ", err)
+		return
+	}
+
+	fmt.Println("******************************************")
+	fmt.Println("*** Retrieve metadata from the network ***")
+	fmt.Println("******************************************")
+	meta, err := c.GetMetadata(client.TypeNetwork, createdNetwork.UUID)
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
+	}
+
+	fmt.Println("")
+
+	fmt.Println("**************************************")
+	fmt.Println("*** Delete metadata on the network ***")
+	fmt.Println("**************************************")
+
+	err = c.DeleteMetadata(client.TypeNetwork, createdNetwork.UUID, "action")
+	if err != nil {
+		fmt.Println("Error deleting metadata 'action': ", err)
+		return
+	}
+
+	fmt.Println("******************************************")
+	fmt.Println("*** Retrieve metadata from the network ***")
+	fmt.Println("******************************************")
+	meta, err = c.GetMetadata(client.TypeNetwork, createdNetwork.UUID)
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
+	}
 
 	fmt.Println("************************")
 	fmt.Println("*** Delete a network ***")

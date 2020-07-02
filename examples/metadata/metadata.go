@@ -37,7 +37,7 @@ func main() {
 	fmt.Println("*** Set metadata on the instance ***")
 	fmt.Println("************************************")
 	fmt.Println("Set person='old-man'")
-	err = c.SetMetadata(client.TypeInstance, instance.UUID, "person", "old man")
+	err = c.SetMetadata(client.TypeInstance, instance.UUID, "person", "old-man")
 	if err != nil {
 		fmt.Println("Error setting metadata 'person': ", err)
 		return
