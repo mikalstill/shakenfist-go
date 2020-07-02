@@ -19,15 +19,10 @@ type createNamespaceReq struct {
 	Key       string `json:"key"`
 }
 
-// CreateNameSpace creates a new Namespace, KeyName and Key.
-//
-// Use this function to create a new Namespace and also to create
-// a new key.
-func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
+// CreateNameSpace creates a new Namespace.
+func (c *Client) CreateNameSpace(namespace string) error {
 	req := &createNamespaceReq{
 		Namespace: namespace,
-		KeyName:   keyName,
-		Key:       key,
 	}
 
 	post, err := json.Marshal(req)
@@ -43,9 +38,40 @@ func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
 	return nil
 }
 
+type createNamespaceKeyReq struct {
+	Key string `json:"key"`
+}
+
+// CreateNameSpaceKey creates a key within a namespace.
+func (c *Client) CreateNameSpaceKey(namespace, keyName, key string) error {
+	req := &createNamespaceKeyReq{
+		Key: key,
+	}
+
+	post, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("cannot marshal key req: %v", err)
+	}
+
+	path := "auth/namespace/" + namespace + "/key/" + keyName
+	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
+	if err != nil {
+		return fmt.Errorf("cannot create namespace: %v", err)
+	}
+
+	return nil
+}
+
 // UpdateNameSpaceKey will modify an existing Key within a Namespace.
 func (c *Client) UpdateNameSpaceKey(namespace, keyName, key string) error {
-	return c.CreateNameSpace(namespace, keyName, key)
+	return c.CreateNameSpaceKey(namespace, keyName, key)
+}
+
+// GetNameSpaceKeys retrieves a list of keys within the namespace
+func (c *Client) GetNamespaceKeys(namespace string) ([]string, error) {
+	keyNames := []string{}
+	err := c.getRequest("auth/namespace", namespace, "key", &keyNames)
+	return keyNames, err
 }
 
 // DeleteNameSpace attempts to delete the namespace from Shaken Fist.
@@ -62,7 +88,7 @@ func (c *Client) DeleteNameSpace(namespace string) error {
 
 // DeleteNameSpaceKey attempts to delete the key from the specified namespace.
 func (c *Client) DeleteNameSpaceKey(namespace, keyName string) error {
-	path := "auth/namespace/" + namespace + "/" + keyName
+	path := "auth/namespace/" + namespace + "/key/" + keyName
 
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {

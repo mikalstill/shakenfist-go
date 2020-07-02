@@ -42,7 +42,7 @@ func main() {
 	fmt.Println("****************************")
 	fmt.Println("*** Create new namespace ***")
 	fmt.Println("****************************")
-	err = c.CreateNameSpace("example-testspace", "testkeyname", "testkey")
+	err = c.CreateNameSpace("example-testspace")
 	if err != nil {
 		fmt.Println("Create new namespace:", err)
 		return
@@ -61,6 +61,35 @@ func main() {
 		fmt.Println(n)
 	}
 
+	fmt.Println("*******************")
+	fmt.Println("*** Create keys ***")
+	fmt.Println("*******************")
+	err = c.CreateNameSpaceKey("example-testspace", "testkeyname", "testkey")
+	if err != nil {
+		fmt.Println("Create first key:", err)
+		return
+	}
+
+	err = c.CreateNameSpaceKey("example-testspace", "key2", "key2long")
+	if err != nil {
+		fmt.Println("Create second key:", err)
+		return
+	}
+
+	fmt.Println("************************")
+	fmt.Println("*** Get list of keys ***")
+	fmt.Println("************************")
+	keys, err := c.GetNamespaceKeys("example-testspace")
+	if err != nil {
+		fmt.Println("GetNamespaceKeys request error:", err)
+		return
+	}
+
+	fmt.Println("Keys:")
+	for _, n := range keys {
+		fmt.Println("   ", n)
+	}
+
 	fmt.Println("*******************************")
 	fmt.Println("*** Delete key in namespace ***")
 	fmt.Println("*******************************")
@@ -68,6 +97,20 @@ func main() {
 	if err != nil {
 		fmt.Println("Delete key error: ", err)
 		return
+	}
+
+	fmt.Println("************************")
+	fmt.Println("*** Get list of keys ***")
+	fmt.Println("************************")
+	keys, err = c.GetNamespaceKeys("example-testspace")
+	if err != nil {
+		fmt.Println("GetNamespaceKeys request error:", err)
+		return
+	}
+
+	fmt.Println("Keys:")
+	for _, n := range keys {
+		fmt.Println("   ", n)
 	}
 
 	fmt.Println("************************")
