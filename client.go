@@ -127,7 +127,7 @@ func (c *Client) httpRequest(
 }
 
 func (c *Client) requestPath(path string) string {
-	return fmt.Sprintf("%s:%v/%s", c.hostname, c.port, path)
+	return fmt.Sprintf("http://%s:%v/%s", c.hostname, c.port, path)
 }
 
 type authRequest struct {
