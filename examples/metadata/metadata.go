@@ -3,14 +3,20 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	client "github.com/shakenfist/client-go"
 )
 
 func main() {
+	port, ok := strconv.Atoi(os.Getenv("SHAKENFIST_PORT"))
+	if ok != nil {
+		port = 13000
+	}
+
 	c := client.NewClient(
-		"http://localhost",
-		13000,
+		os.Getenv("SHAKENFIST_HOSTNAME"),
+		port,
 		os.Getenv("SHAKENFIST_NAMESPACE"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
@@ -30,15 +36,15 @@ func main() {
 	fmt.Println("************************************")
 	fmt.Println("*** Set metadata on the instance ***")
 	fmt.Println("************************************")
-	fmt.Println("Set person='old man")
-	err = c.SetMetadata(instance.UUID, "person", "old man")
+	fmt.Println("Set person='old-man'")
+	err = c.SetInstanceMetadata(instance.UUID, "person", "old-man")
 	if err != nil {
 		fmt.Println("Error setting metadata 'person': ", err)
 		return
 	}
 
 	fmt.Println("Set action='shakes fist'")
-	err = c.SetMetadata(instance.UUID, "action", "shakes fist")
+	err = c.SetInstanceMetadata(instance.UUID, "action", "shakes fist")
 	if err != nil {
 		fmt.Println("Error setting metadata 'action': ", err)
 		return
@@ -47,7 +53,7 @@ func main() {
 	fmt.Println("*******************************************")
 	fmt.Println("*** Retrieve metadata from the instance ***")
 	fmt.Println("*******************************************")
-	meta, err := c.GetMetadata(instance.UUID)
+	meta, err := c.GetInstanceMetadata(instance.UUID)
 	if err != nil {
 		fmt.Println("Cannot get metadata: ", err)
 		return
@@ -57,8 +63,34 @@ func main() {
 	for k, v := range meta {
 		fmt.Println("   ", k, "=", v)
 	}
+
 	fmt.Println("")
 
+	fmt.Println("***************************************")
+	fmt.Println("*** Delete metadata on the instance ***")
+	fmt.Println("***************************************")
+
+	err = c.DeleteInstanceMetadata(instance.UUID, "action")
+	if err != nil {
+		fmt.Println("Error deleting metadata 'action': ", err)
+		return
+	}
+
+	fmt.Println("*******************************************")
+	fmt.Println("*** Retrieve metadata from the instance ***")
+	fmt.Println("*******************************************")
+	meta, err = c.GetInstanceMetadata(instance.UUID)
+	if err != nil {
+		fmt.Println("Cannot get metadata: ", err)
+		return
+	}
+
+	fmt.Println("Metadata:")
+	for k, v := range meta {
+		fmt.Println("   ", k, "=", v)
+	}
+
+	fmt.Println("")
 	fmt.Println("***************************")
 	fmt.Println("*** Delete the instance ***")
 	fmt.Println("***************************")

@@ -12,6 +12,19 @@ import (
 	"net/http"
 )
 
+// ResourceType is a type of Shaken Fist resource
+type ResourceType int
+
+const (
+	TypeNamespace ResourceType = iota
+	TypeInstance
+	TypeNetwork
+)
+
+func (r ResourceType) String() string {
+	return [...]string{"auth/namespaces", "instances", "networks"}[r]
+}
+
 // Client holds all of the information required to connect to
 // the server
 type Client struct {
@@ -114,7 +127,7 @@ func (c *Client) httpRequest(
 }
 
 func (c *Client) requestPath(path string) string {
-	return fmt.Sprintf("%s:%v/%s", c.hostname, c.port, path)
+	return fmt.Sprintf("http://%s:%v/%s", c.hostname, c.port, path)
 }
 
 type authRequest struct {

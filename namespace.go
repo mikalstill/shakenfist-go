@@ -7,9 +7,9 @@ import (
 )
 
 // GetNamespaces fetches a list of all Namespaces.
-func (c *Client) GetNameSpaces() ([]string, error) {
+func (c *Client) GetNamespaces() ([]string, error) {
 	namespaces := []string{}
-	err := c.doRequest("auth/namespace", "GET", bytes.Buffer{}, &namespaces)
+	err := c.doRequest("auth/namespaces", "GET", bytes.Buffer{}, &namespaces)
 	return namespaces, err
 }
 
@@ -19,15 +19,10 @@ type createNamespaceReq struct {
 	Key       string `json:"key"`
 }
 
-// CreateNameSpace creates a new Namespace, KeyName and Key.
-//
-// Use this function to create a new Namespace and also to create
-// a new key.
-func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
+// CreateNameSpace creates a new Namespace.
+func (c *Client) CreateNamespace(namespace string) error {
 	req := &createNamespaceReq{
 		Namespace: namespace,
-		KeyName:   keyName,
-		Key:       key,
 	}
 
 	post, err := json.Marshal(req)
@@ -35,7 +30,31 @@ func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
 		return fmt.Errorf("cannot marshal namespace req: %v", err)
 	}
 
-	err = c.doRequest("auth/namespace", "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequest("auth/namespaces", "POST", *bytes.NewBuffer(post), nil)
+	if err != nil {
+		return fmt.Errorf("cannot create namespace: %v", err)
+	}
+
+	return nil
+}
+
+type createNamespaceKeyReq struct {
+	Key string `json:"key"`
+}
+
+// CreateNameSpaceKey creates a key within a namespace.
+func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
+	req := &createNamespaceKeyReq{
+		Key: key,
+	}
+
+	post, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("cannot marshal key req: %v", err)
+	}
+
+	path := "auth/namespaces/" + namespace + "/keys/" + keyName
+	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -44,13 +63,20 @@ func (c *Client) CreateNameSpace(namespace, keyName, key string) error {
 }
 
 // UpdateNameSpaceKey will modify an existing Key within a Namespace.
-func (c *Client) UpdateNameSpaceKey(namespace, keyName, key string) error {
-	return c.CreateNameSpace(namespace, keyName, key)
+func (c *Client) UpdateNamespaceKey(namespace, keyName, key string) error {
+	return c.CreateNamespaceKey(namespace, keyName, key)
+}
+
+// GetNameSpaceKeys retrieves a list of keys within the namespace
+func (c *Client) GetNamespaceKeys(namespace string) ([]string, error) {
+	keyNames := []string{}
+	err := c.getRequest("auth/namespaces", namespace, "keys", &keyNames)
+	return keyNames, err
 }
 
 // DeleteNameSpace attempts to delete the namespace from Shaken Fist.
-func (c *Client) DeleteNameSpace(namespace string) error {
-	path := "auth/namespace/" + namespace
+func (c *Client) DeleteNamespace(namespace string) error {
+	path := "auth/namespaces/" + namespace
 
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
@@ -61,8 +87,8 @@ func (c *Client) DeleteNameSpace(namespace string) error {
 }
 
 // DeleteNameSpaceKey attempts to delete the key from the specified namespace.
-func (c *Client) DeleteNameSpaceKey(namespace, keyName string) error {
-	path := "auth/namespace/" + namespace + "/" + keyName
+func (c *Client) DeleteNamespaceKey(namespace, keyName string) error {
+	path := "auth/namespaces/" + namespace + "/keys/" + keyName
 
 	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
