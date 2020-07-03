@@ -22,7 +22,7 @@ const (
 )
 
 func (r ResourceType) String() string {
-	return [...]string{"auth/namespace", "instances", "networks"}[r]
+	return [...]string{"auth/namespaces", "instances", "networks"}[r]
 }
 
 // Client holds all of the information required to connect to
