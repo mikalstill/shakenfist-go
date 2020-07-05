@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	client "github.com/shakenfist/client-go"
@@ -23,14 +22,8 @@ func printNetwork(network client.Network) {
 }
 
 func main() {
-	port, ok := strconv.Atoi(os.Getenv("SHAKENFIST_PORT"))
-	if ok != nil {
-		port = 13000
-	}
-
 	c := client.NewClient(
-		os.Getenv("SHAKENFIST_HOSTNAME"),
-		port,
+		os.Getenv("SHAKENFIST_URL"),
 		os.Getenv("SHAKENFIST_NAMESPACE"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
@@ -87,7 +80,7 @@ func main() {
 	fmt.Println("*** Set metadata on the network ***")
 	fmt.Println("***********************************")
 	fmt.Println("Set nets='old-people'")
-	err = c.SetNetworkMetadata(createdNetwork.UUID, "nets", "old people")
+	err = c.SetNetworkMetadata(createdNetwork.UUID, "net", "old people")
 	if err != nil {
 		fmt.Println("Error setting metadata 'nets': ", err)
 		return

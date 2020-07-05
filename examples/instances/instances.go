@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	client "github.com/shakenfist/client-go"
@@ -52,14 +51,8 @@ func printInterface(iface client.NetworkInterface) {
 }
 
 func main() {
-	port, ok := strconv.Atoi(os.Getenv("SHAKENFIST_PORT"))
-	if ok != nil {
-		port = 13000
-	}
-
 	c := client.NewClient(
-		os.Getenv("SHAKENFIST_HOSTNAME"),
-		port,
+		os.Getenv("SHAKENFIST_URL"),
 		os.Getenv("SHAKENFIST_NAMESPACE"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
