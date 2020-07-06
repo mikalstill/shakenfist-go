@@ -77,7 +77,7 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	instance := Instance{}
 	err = c.doRequest("instances", "POST", *bytes.NewBuffer(post), &instance)
 
-	return instance, nil
+	return instance, err
 }
 
 // snapshotRequest defines options when making a snapshot of an instance.
