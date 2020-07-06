@@ -28,21 +28,22 @@ func (r ResourceType) String() string {
 // Client holds all of the information required to connect to
 // the server
 type Client struct {
-	hostname   string
-	port       int
+	server_url string
 	httpClient *http.Client
 	namespace  string
 	apiKey     string
 	cachedAuth string
 }
 
-// NewClient returns a client ready for use
-func NewClient(hostname string, port int,
-	namespace, apiKey string) *Client {
+// NewClient returns a Shaken Fist client.
+//
+// The server_url string should be the base URL of the server including
+// the port number: "http://<server>:<port>"  eg. "http://sf-1:13000".
+// (Standard port for the Shaken Fist API server is 13000.)
+func NewClient(server_url string, namespace, apiKey string) *Client {
 
 	return &Client{
-		hostname:   hostname,
-		port:       port,
+		server_url: server_url,
 		httpClient: &http.Client{},
 		namespace:  namespace,
 		apiKey:     apiKey,
@@ -98,7 +99,7 @@ func (c *Client) doRequest(
 func (c *Client) httpRequest(
 	path, method string, body bytes.Buffer) (io.ReadCloser, int, error) {
 
-	req, err := http.NewRequest(method, c.requestPath(path), &body)
+	req, err := http.NewRequest(method, c.server_url+"/"+path, &body)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -124,10 +125,6 @@ func (c *Client) httpRequest(
 				resp.StatusCode, respBody.String())
 	}
 	return resp.Body, 0, nil
-}
-
-func (c *Client) requestPath(path string) string {
-	return fmt.Sprintf("http://%s:%v/%s", c.hostname, c.port, path)
 }
 
 type authRequest struct {
