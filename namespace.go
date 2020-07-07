@@ -15,8 +15,6 @@ func (c *Client) GetNamespaces() ([]string, error) {
 
 type createNamespaceReq struct {
 	Namespace string `json:"namespace"`
-	KeyName   string `json:"key_name"`
-	Key       string `json:"key"`
 }
 
 // CreateNameSpace creates a new Namespace.

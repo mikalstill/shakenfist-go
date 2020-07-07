@@ -146,7 +146,7 @@ func (c *Client) requestAuth() error {
 		return fmt.Errorf("unable to marshal auth request: %v", err)
 	}
 
-	body, _, err := c.httpRequest("/auth", "POST", *bytes.NewBuffer(post))
+	body, _, err := c.httpRequest("auth", "POST", *bytes.NewBuffer(post))
 	if err != nil {
 		return fmt.Errorf("auth request failed: %v", err)
 	}

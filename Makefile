@@ -5,7 +5,7 @@
 #
 
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-TEST?=./...
+TEST?=$$(go list ./... | grep -v /examples/)
 TEST_COUNT?=1
 
 default: build
