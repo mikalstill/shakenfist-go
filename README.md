@@ -1,5 +1,6 @@
 Golang REST API client for Shaken Fist
 ======================================
+![Go](https://github.com/shakenfist/client-go/workflows/Go/badge.svg)
 
 This is a Golang library for the minimal cloud [Shaken Fist](https://github.com/shakenfist/shakenfist)
 
