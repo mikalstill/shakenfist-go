@@ -24,7 +24,7 @@ type Instance struct {
 	Node         string                 `json:"node"`
 	ConsolePort  int                    `json:"console_port"`
 	VDIPort      int                    `json:"vdi_port"`
-	UserData     string                 `json:"User_data"`
+	UserData     string                 `json:"user_data"`
 	BlockDevices map[string]interface{} `json:"block_devices"`
 	State        string                 `json:"state"`
 	StateUpdated float64                `json:"state_updated"`
@@ -77,7 +77,7 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	instance := Instance{}
 	err = c.doRequest("instances", "POST", *bytes.NewBuffer(post), &instance)
 
-	return instance, nil
+	return instance, err
 }
 
 // snapshotRequest defines options when making a snapshot of an instance.
