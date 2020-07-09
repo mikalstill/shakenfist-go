@@ -87,7 +87,7 @@ func (c *Client) SetMetadata(res ResourceType, uuid, key, value string) error {
 		return fmt.Errorf("cannot marshal data into JSON: %v", err)
 	}
 
-	if err := c.doRequest(path, "POST", *bytes.NewBuffer(post), nil); err != nil {
+	if err := c.doRequest(path, "PUT", *bytes.NewBuffer(post), nil); err != nil {
 		return fmt.Errorf("unable to set metadata: %v", err)
 	}
 
