@@ -110,14 +110,14 @@ var _ = Describe("Auth caching", func() {
 		httpmock.RegisterResponder("GET", test_url+"/instances",
 			httpmock.NewBytesResponder(200, jsonResp))
 
-		err = client.doRequest("instances", "GET", bytes.Buffer{}, &instances)
+		err = client.doRequestJSON("instances", "GET", bytes.Buffer{}, &instances)
 		Expect(err).To(BeNil())
 
 		// Make second request, expecting auth token to be cached
 		httpmock.RegisterResponder("GET", test_url+"/instances",
 			httpmock.NewBytesResponder(200, jsonResp))
 
-		err = client.doRequest("instances", "GET", bytes.Buffer{}, &instances)
+		err = client.doRequestJSON("instances", "GET", bytes.Buffer{}, &instances)
 		Expect(err).To(BeNil())
 
 		// Check auth request was made only once

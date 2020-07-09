@@ -9,7 +9,7 @@ import (
 // GetNamespaces fetches a list of all Namespaces.
 func (c *Client) GetNamespaces() ([]string, error) {
 	namespaces := []string{}
-	err := c.doRequest("auth/namespaces", "GET", bytes.Buffer{}, &namespaces)
+	err := c.doRequestJSON("auth/namespaces", "GET", bytes.Buffer{}, &namespaces)
 	return namespaces, err
 }
 
@@ -28,7 +28,7 @@ func (c *Client) CreateNamespace(namespace string) error {
 		return fmt.Errorf("cannot marshal namespace req: %v", err)
 	}
 
-	err = c.doRequest("auth/namespaces", "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequestJSON("auth/namespaces", "POST", *bytes.NewBuffer(post), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -54,7 +54,7 @@ func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
 	}
 
 	path := "auth/namespaces/" + namespace + "/keys"
-	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequestJSON(path, "POST", *bytes.NewBuffer(post), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -78,7 +78,7 @@ func (c *Client) UpdateNamespaceKey(namespace, keyName, key string) error {
 	}
 
 	path := "auth/namespaces/" + namespace + "/keys/" + keyName
-	err = c.doRequest(path, "PUT", *bytes.NewBuffer(put), nil)
+	err = c.doRequestJSON(path, "PUT", *bytes.NewBuffer(put), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -97,7 +97,7 @@ func (c *Client) GetNamespaceKeys(namespace string) ([]string, error) {
 func (c *Client) DeleteNamespace(namespace string) error {
 	path := "auth/namespaces/" + namespace
 
-	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
 		return fmt.Errorf("unable to delete namespace: %v", err)
 	}
@@ -109,7 +109,7 @@ func (c *Client) DeleteNamespace(namespace string) error {
 func (c *Client) DeleteNamespaceKey(namespace, keyName string) error {
 	path := "auth/namespaces/" + namespace + "/keys/" + keyName
 
-	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
 		return fmt.Errorf("unable to delete key: %v", err)
 	}

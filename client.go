@@ -57,22 +57,38 @@ func NewClient(server_url string, namespace, apiKey string) *Client {
 func (c *Client) getRequest(
 	object, uuid string, cmd string, resp interface{}) error {
 
-	err := c.doRequest(object+"/"+uuid+"/"+cmd, "GET", bytes.Buffer{}, resp)
+	err := c.doRequestJSON(object+"/"+uuid+"/"+cmd, "GET", bytes.Buffer{}, resp)
 	return err
 }
 
 func (c *Client) postRequest(object string, uuid string, cmd string) error {
-	err := c.doRequest(object+"/"+uuid+"/"+cmd, "POST", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(object+"/"+uuid+"/"+cmd, "POST", bytes.Buffer{}, nil)
+	return err
+}
+
+func (c *Client) doRequestJSON(
+	path, method string, data bytes.Buffer, resp interface{}) error {
+
+	body, err := c.doRequest(path, method, data)
+	if err != nil {
+		return fmt.Errorf("request error: %v", err)
+	}
+
+	// Check if JSON decoding is required
+	if resp != nil {
+		err = json.NewDecoder(body).Decode(resp)
+	}
+
 	return err
 }
 
 func (c *Client) doRequest(
-	path, method string, data bytes.Buffer, resp interface{}) error {
+	path, method string, data bytes.Buffer) (io.ReadCloser, error) {
 
 	if c.cachedAuth == "" {
 		err := c.requestAuth()
 		if err != nil {
-			return fmt.Errorf("unable to get auth token: %v", err)
+			return nil, fmt.Errorf("unable to get auth token: %v", err)
 		}
 	}
 
@@ -81,19 +97,18 @@ func (c *Client) doRequest(
 	// If auth token has expired, then get a new token
 	if statusCode == http.StatusUnauthorized {
 		if c.requestAuth() != nil {
-			return fmt.Errorf("unable to refresh auth token: %v", err)
+			return nil, fmt.Errorf("unable to refresh auth token: %v", err)
 		}
 
 		// Try with new token, if second error occurs it is returned
 		body, _, err = c.httpRequest(path, method, data)
 	}
 
-	// Return on error or if JSON decoding not required
-	if err != nil || resp == nil {
-		return err
+	if err != nil {
+		return nil, fmt.Errorf("httpRequest error: %v", err)
 	}
 
-	return json.NewDecoder(body).Decode(resp)
+	return body, nil
 }
 
 func (c *Client) httpRequest(

@@ -229,4 +229,32 @@ var _ = Describe("Instance management functions", func() {
 		info := httpmock.GetCallCountInfo()
 		Expect(info["DELETE "+reqPath]).To(Equal(1))
 	})
+
+	It("should retrieve console data from the instance", func() {
+		jsonResp := []byte(`=== cirros: current=0.5.1 latest=0.5.1 uptime=4.20 ===
+		____               ____  ____
+	   / __/ __ ____ ____ / __ \/ __/
+	  / /__ / // __// __// /_/ /\ \
+	  \___//_//_/  /_/   \____/___/
+		 http://cirros-cloud.net`)
+
+		// Prepare mocked HTTP
+		reqPath := test_url + "/instances/123-456/consoledata"
+		httpmock.RegisterResponder("GET", reqPath,
+			httpmock.NewBytesResponder(200, jsonResp))
+
+		// Make client request
+		consoledata, err := client.GetConsoleData("123-456", 100)
+		Expect(err).To(BeNil())
+		Expect(consoledata).To(Equal(`=== cirros: current=0.5.1 latest=0.5.1 uptime=4.20 ===
+		____               ____  ____
+	   / __/ __ ____ ____ / __ \/ __/
+	  / /__ / // __// __// /_/ /\ \
+	  \___//_//_/  /_/   \____/___/
+		 http://cirros-cloud.net`))
+
+		// Check correct URL requested
+		info := httpmock.GetCallCountInfo()
+		Expect(info["GET "+reqPath]).To(Equal(1))
+	})
 })
