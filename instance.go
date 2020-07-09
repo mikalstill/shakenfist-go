@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // DiskSpec is a definition of an instance disk.
@@ -33,7 +34,7 @@ type Instance struct {
 // GetInstances fetches a list of instances.
 func (c *Client) GetInstances() ([]Instance, error) {
 	instances := []Instance{}
-	err := c.doRequest("instances", "GET", bytes.Buffer{}, &instances)
+	err := c.doRequestJSON("instances", "GET", bytes.Buffer{}, &instances)
 
 	return instances, err
 }
@@ -41,7 +42,7 @@ func (c *Client) GetInstances() ([]Instance, error) {
 // GetInstance fetches a specific instance by UUID.
 func (c *Client) GetInstance(uuid string) (Instance, error) {
 	instance := Instance{}
-	err := c.doRequest("instances/"+uuid, "GET", bytes.Buffer{}, &instance)
+	err := c.doRequestJSON("instances/"+uuid, "GET", bytes.Buffer{}, &instance)
 
 	return instance, err
 }
@@ -75,7 +76,7 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	}
 
 	instance := Instance{}
-	err = c.doRequest("instances", "POST", *bytes.NewBuffer(post), &instance)
+	err = c.doRequestJSON("instances", "POST", *bytes.NewBuffer(post), &instance)
 
 	return instance, err
 }
@@ -97,7 +98,7 @@ func (c *Client) SnapshotInstance(uuid string, all bool) error {
 		return err
 	}
 
-	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequestJSON(path, "POST", *bytes.NewBuffer(post), nil)
 
 	return err
 }
@@ -113,7 +114,7 @@ type Snapshot struct {
 func (c *Client) GetInstanceSnapshots(uuid string) ([]Snapshot, error) {
 	snapshots := []Snapshot{}
 	path := "instances/" + uuid + "/snapshot"
-	err := c.doRequest(path, "GET", bytes.Buffer{}, &snapshots)
+	err := c.doRequestJSON(path, "GET", bytes.Buffer{}, &snapshots)
 
 	return snapshots, err
 }
@@ -145,7 +146,7 @@ func (c *Client) UnPauseInstance(uuid string) error {
 
 // DeleteInstance deletes an instance.
 func (c *Client) DeleteInstance(uuid string) error {
-	err := c.doRequest("instances/"+uuid, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON("instances/"+uuid, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
@@ -162,7 +163,7 @@ type Event struct {
 // GetInstanceEvents fetches events that have occurred on a specific instance.
 func (c *Client) GetInstanceEvents(uuid string) ([]Event, error) {
 	events := []Event{}
-	err := c.doRequest("instances/"+uuid+"/events", "GET", bytes.Buffer{}, &events)
+	err := c.getRequest("instances", uuid, "events", &events)
 	return events, err
 }
 
@@ -181,7 +182,38 @@ func (c *Client) CacheImage(imageURL string) error {
 		return err
 	}
 
-	err = c.doRequest("images", "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequestJSON("images", "POST", *bytes.NewBuffer(post), nil)
 
 	return err
+}
+
+type consoleDataReq struct {
+	Length int `json:"length"`
+}
+
+// GetConsoleData retrieves the last n bytes of console data from an instance.
+func (c *Client) GetConsoleData(uuid string, n int) (string, error) {
+	path := "instances/" + uuid + "/consoledata"
+
+	req := &consoleDataReq{
+		Length: n,
+	}
+	reqData, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("cannot marshal consoledata request: %v", err)
+	}
+
+	resp, err := c.doRequest(path, "GET", *bytes.NewBuffer(reqData))
+	if err != nil {
+		return "", fmt.Errorf("cannot retrieve console data: %v", err)
+	}
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(resp)
+	if err != nil {
+		return "", fmt.Errorf("cannot read http response buffer: %v", err)
+	}
+	d := buf.String()
+
+	return d, nil
 }

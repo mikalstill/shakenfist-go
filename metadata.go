@@ -87,7 +87,8 @@ func (c *Client) SetMetadata(res ResourceType, uuid, key, value string) error {
 		return fmt.Errorf("cannot marshal data into JSON: %v", err)
 	}
 
-	if err := c.doRequest(path, "POST", *bytes.NewBuffer(post), nil); err != nil {
+	err = c.doRequestJSON(path, "PUT", *bytes.NewBuffer(post), nil)
+	if err != nil {
 		return fmt.Errorf("unable to set metadata: %v", err)
 	}
 
@@ -98,7 +99,7 @@ func (c *Client) SetMetadata(res ResourceType, uuid, key, value string) error {
 func (c *Client) DeleteMetadata(res ResourceType, uuid, key string) error {
 	path := res.String() + "/" + uuid + "/metadata/" + key
 
-	if err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil); err != nil {
+	if err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil); err != nil {
 		return fmt.Errorf("unable to delete metadata: %v", err)
 	}
 

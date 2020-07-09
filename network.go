@@ -28,14 +28,14 @@ type Network struct {
 // GetNetworks fetches a list of networks.
 func (c *Client) GetNetworks() ([]Network, error) {
 	networks := []Network{}
-	err := c.doRequest("networks", "GET", bytes.Buffer{}, &networks)
+	err := c.doRequestJSON("networks", "GET", bytes.Buffer{}, &networks)
 	return networks, err
 }
 
 // GetNetwork fetches a specific instance by UUID.
 func (c *Client) GetNetwork(uuid string) (Network, error) {
 	network := Network{}
-	err := c.doRequest("networks/"+uuid, "GET", bytes.Buffer{}, &network)
+	err := c.doRequestJSON("networks/"+uuid, "GET", bytes.Buffer{}, &network)
 	return network, err
 }
 
@@ -61,14 +61,14 @@ func (c *Client) CreateNetwork(netblock string, provideDHCP bool, provideNAT boo
 	}
 
 	network := Network{}
-	err = c.doRequest("networks", "POST", *bytes.NewBuffer(post), &network)
+	err = c.doRequestJSON("networks", "POST", *bytes.NewBuffer(post), &network)
 	return network, err
 }
 
 // DeleteNetwork removes a network with a specified UUID.
 func (c *Client) DeleteNetwork(uuid string) error {
 	path := "networks/" + uuid
-	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
 	return err
 }
 
@@ -98,7 +98,7 @@ type NetworkInterface struct {
 func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) {
 	path := "instances/" + uuid + "/interfaces"
 	interfaces := []NetworkInterface{}
-	err := c.doRequest(path, "GET", bytes.Buffer{}, &interfaces)
+	err := c.doRequestJSON(path, "GET", bytes.Buffer{}, &interfaces)
 
 	return interfaces, err
 }
@@ -107,7 +107,7 @@ func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) 
 func (c *Client) GetInterface(uuid string) (NetworkInterface, error) {
 	path := "interfaces/" + uuid
 	iface := NetworkInterface{}
-	err := c.doRequest(path, "GET", bytes.Buffer{}, &iface)
+	err := c.doRequestJSON(path, "GET", bytes.Buffer{}, &iface)
 
 	return iface, err
 }
@@ -140,7 +140,7 @@ func (c *Client) DeployNetworkNode(uuid string) error {
 		return fmt.Errorf("unable to marshal data: %v", err)
 	}
 
-	err = c.doRequest("deploy_network_node", "PUT", *bytes.NewBuffer(put), nil)
+	err = c.doRequestJSON("deploy_network_node", "PUT", *bytes.NewBuffer(put), nil)
 	return err
 }
 
@@ -155,7 +155,7 @@ func (c *Client) UpdateDHCP(uuid string) error {
 		return fmt.Errorf("unable to marshal data: %v", err)
 	}
 
-	err = c.doRequest("update_dhcp", "PUT", *bytes.NewBuffer(put), nil)
+	err = c.doRequestJSON("update_dhcp", "PUT", *bytes.NewBuffer(put), nil)
 	return err
 }
 
@@ -170,6 +170,6 @@ func (c *Client) RemoveDHCP(uuid string) error {
 		return fmt.Errorf("unable to marshal data: %v", err)
 	}
 
-	err = c.doRequest("remove_dhcp", "PUT", *bytes.NewBuffer(put), nil)
+	err = c.doRequestJSON("remove_dhcp", "PUT", *bytes.NewBuffer(put), nil)
 	return err
 }

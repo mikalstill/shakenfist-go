@@ -9,7 +9,7 @@ import (
 // GetNamespaces fetches a list of all Namespaces.
 func (c *Client) GetNamespaces() ([]string, error) {
 	namespaces := []string{}
-	err := c.doRequest("auth/namespaces", "GET", bytes.Buffer{}, &namespaces)
+	err := c.doRequestJSON("auth/namespaces", "GET", bytes.Buffer{}, &namespaces)
 	return namespaces, err
 }
 
@@ -28,7 +28,7 @@ func (c *Client) CreateNamespace(namespace string) error {
 		return fmt.Errorf("cannot marshal namespace req: %v", err)
 	}
 
-	err = c.doRequest("auth/namespaces", "POST", *bytes.NewBuffer(post), nil)
+	err = c.doRequestJSON("auth/namespaces", "POST", *bytes.NewBuffer(post), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -37,13 +37,15 @@ func (c *Client) CreateNamespace(namespace string) error {
 }
 
 type createNamespaceKeyReq struct {
-	Key string `json:"key"`
+	KeyName string `json:"key_name"`
+	Key     string `json:"key"`
 }
 
 // CreateNameSpaceKey creates a key within a namespace.
 func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
 	req := &createNamespaceKeyReq{
-		Key: key,
+		KeyName: keyName,
+		Key:     key,
 	}
 
 	post, err := json.Marshal(req)
@@ -51,8 +53,8 @@ func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
 		return fmt.Errorf("cannot marshal key req: %v", err)
 	}
 
-	path := "auth/namespaces/" + namespace + "/keys/" + keyName
-	err = c.doRequest(path, "POST", *bytes.NewBuffer(post), nil)
+	path := "auth/namespaces/" + namespace + "/keys"
+	err = c.doRequestJSON(path, "POST", *bytes.NewBuffer(post), nil)
 	if err != nil {
 		return fmt.Errorf("cannot create namespace: %v", err)
 	}
@@ -60,9 +62,28 @@ func (c *Client) CreateNamespaceKey(namespace, keyName, key string) error {
 	return nil
 }
 
+type updateNamespaceKeyReq struct {
+	Key string `json:"key"`
+}
+
 // UpdateNameSpaceKey will modify an existing Key within a Namespace.
 func (c *Client) UpdateNamespaceKey(namespace, keyName, key string) error {
-	return c.CreateNamespaceKey(namespace, keyName, key)
+	req := &updateNamespaceKeyReq{
+		Key: key,
+	}
+
+	put, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("cannot marshal key req: %v", err)
+	}
+
+	path := "auth/namespaces/" + namespace + "/keys/" + keyName
+	err = c.doRequestJSON(path, "PUT", *bytes.NewBuffer(put), nil)
+	if err != nil {
+		return fmt.Errorf("cannot create namespace: %v", err)
+	}
+
+	return nil
 }
 
 // GetNameSpaceKeys retrieves a list of keys within the namespace
@@ -76,7 +97,7 @@ func (c *Client) GetNamespaceKeys(namespace string) ([]string, error) {
 func (c *Client) DeleteNamespace(namespace string) error {
 	path := "auth/namespaces/" + namespace
 
-	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
 		return fmt.Errorf("unable to delete namespace: %v", err)
 	}
@@ -88,7 +109,7 @@ func (c *Client) DeleteNamespace(namespace string) error {
 func (c *Client) DeleteNamespaceKey(namespace, keyName string) error {
 	path := "auth/namespaces/" + namespace + "/keys/" + keyName
 
-	err := c.doRequest(path, "DELETE", bytes.Buffer{}, nil)
+	err := c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
 	if err != nil {
 		return fmt.Errorf("unable to delete key: %v", err)
 	}

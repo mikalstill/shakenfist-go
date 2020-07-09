@@ -112,10 +112,10 @@ var _ = Describe("Namespace Key management functions", func() {
 	})
 
 	It("should create a namespace key", func() {
-		reqPath := test_url + "/auth/namespaces/bobspace/keys/bobskey"
+		reqPath := test_url + "/auth/namespaces/bobspace/keys"
 
 		// JSON data expected to be sent
-		testSpace := []byte(`{"key":"supersecret"}`)
+		testSpace := []byte(`{"key_name":"bobskey","key":"supersecret"}`)
 
 		// Prepare mocked HTTP
 		httpmock.RegisterResponder("POST", reqPath,
@@ -145,7 +145,7 @@ var _ = Describe("Namespace Key management functions", func() {
 		testSpace := []byte(`{"key":"supersecret"}`)
 
 		// Prepare mocked HTTP
-		httpmock.RegisterResponder("POST", reqPath,
+		httpmock.RegisterResponder("PUT", reqPath,
 			func(req *http.Request) (*http.Response, error) {
 				buf, err := ioutil.ReadAll(req.Body)
 
@@ -162,7 +162,7 @@ var _ = Describe("Namespace Key management functions", func() {
 
 		// Check correct URL requested
 		info := httpmock.GetCallCountInfo()
-		Expect(info["POST "+reqPath]).To(Equal(1))
+		Expect(info["PUT "+reqPath]).To(Equal(1))
 	})
 
 	It("should delete a namespace key", func() {

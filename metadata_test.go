@@ -64,7 +64,7 @@ var _ = Describe("Metadata management functions", func() {
 		testMetdata := []byte(`{"value":"bob"}`)
 
 		// Prepare mocked HTTP
-		httpmock.RegisterResponder("POST", reqPath,
+		httpmock.RegisterResponder("PUT", reqPath,
 			func(req *http.Request) (*http.Response, error) {
 				buf, err := ioutil.ReadAll(req.Body)
 
@@ -81,7 +81,7 @@ var _ = Describe("Metadata management functions", func() {
 
 		// Check correct URL requested
 		info := httpmock.GetCallCountInfo()
-		Expect(info["POST "+reqPath]).To(Equal(1))
+		Expect(info["PUT "+reqPath]).To(Equal(1))
 	})
 
 	It("should delete namespace metadata", func() {
@@ -136,7 +136,7 @@ var _ = Describe("Metadata management functions", func() {
 		testMetdata := []byte(`{"value":"bob"}`)
 
 		// Prepare mocked HTTP
-		httpmock.RegisterResponder("POST", reqPath,
+		httpmock.RegisterResponder("PUT", reqPath,
 			func(req *http.Request) (*http.Response, error) {
 				buf, err := ioutil.ReadAll(req.Body)
 
@@ -153,7 +153,7 @@ var _ = Describe("Metadata management functions", func() {
 
 		// Check correct URL requested
 		info := httpmock.GetCallCountInfo()
-		Expect(info["POST "+reqPath]).To(Equal(1))
+		Expect(info["PUT "+reqPath]).To(Equal(1))
 	})
 
 	It("should delete instance metadata", func() {
@@ -208,7 +208,7 @@ var _ = Describe("Metadata management functions", func() {
 		testMetdata := []byte(`{"value":"bob"}`)
 
 		// Prepare mocked HTTP
-		httpmock.RegisterResponder("POST", reqPath,
+		httpmock.RegisterResponder("PUT", reqPath,
 			func(req *http.Request) (*http.Response, error) {
 				buf, err := ioutil.ReadAll(req.Body)
 
@@ -225,7 +225,7 @@ var _ = Describe("Metadata management functions", func() {
 
 		// Check correct URL requested
 		info := httpmock.GetCallCountInfo()
-		Expect(info["POST "+reqPath]).To(Equal(1))
+		Expect(info["PUT "+reqPath]).To(Equal(1))
 	})
 
 	It("should delete network metadata", func() {

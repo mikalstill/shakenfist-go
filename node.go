@@ -14,6 +14,6 @@ type Node struct {
 // GetNodes fetches a list of nodes.
 func (c *Client) GetNodes() ([]Node, error) {
 	nodes := []Node{}
-	err := c.doRequest("nodes", "GET", bytes.Buffer{}, &nodes)
+	err := c.doRequestJSON("nodes", "GET", bytes.Buffer{}, &nodes)
 	return nodes, err
 }
