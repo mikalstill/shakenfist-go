@@ -31,14 +31,14 @@ var _ = Describe("Node management functions", func() {
 		// JSON data that SF would return
 		testJSON := []byte(`[
 			{
-				"name":"sf-1",
-				"ip":"10.0.1.1",
-				"lastseen":"1594251513.6553159"
+				"name": "sf-1",
+				"ip": "10.0.1.1",
+				"lastseen": 1594251513.6553159
 			},
 			{
-				"name":"sf-2",
-				"ip":"10.0.1.2",
-				"lastseen":"1594251513.7450194"
+				"name": "sf-2",
+				"ip": "10.0.1.2",
+				"lastseen": 1594251513.7450194
 			}
 		]`)
 
@@ -53,12 +53,12 @@ var _ = Describe("Node management functions", func() {
 			{
 				Name:     "sf-1",
 				IP:       "10.0.1.1",
-				LastSeen: "1594251513.6553159",
+				LastSeen: 1594251513.6553159,
 			},
 			{
 				Name:     "sf-2",
 				IP:       "10.0.1.2",
-				LastSeen: "1594251513.7450194",
+				LastSeen: 1594251513.7450194,
 			},
 		}))
 	})
