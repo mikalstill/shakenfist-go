@@ -6,9 +6,9 @@ import (
 
 // Node defines a ShakenFist node.
 type Node struct {
-	Name     string `json:"name"`
-	IP       string `json:"ip"`
-	LastSeen string `json:"lastseen"`
+	Name     string  `json:"name"`
+	IP       string  `json:"ip"`
+	LastSeen float64 `json:"lastseen"`
 }
 
 // GetNodes fetches a list of nodes.
