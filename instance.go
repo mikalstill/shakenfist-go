@@ -29,6 +29,7 @@ type Instance struct {
 	BlockDevices map[string]interface{} `json:"block_devices"`
 	State        string                 `json:"state"`
 	StateUpdated float64                `json:"state_updated"`
+	PowerState   string                 `json:"power_state"`
 }
 
 // GetInstances fetches a list of instances.
