@@ -1,6 +1,9 @@
 package client
 
 import (
+	"io/ioutil"
+	"net/http"
+
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -215,7 +218,7 @@ var _ = Describe("Instance management functions", func() {
 		Expect(info["POST "+reqPath]).To(Equal(1))
 	})
 
-	It("should delete an instance request", func() {
+	It("should make a delete an instance request", func() {
 		// Prepare mocked HTTP
 		reqPath := test_url + "/instances/123-456"
 		httpmock.RegisterResponder("DELETE", reqPath,
@@ -224,6 +227,34 @@ var _ = Describe("Instance management functions", func() {
 		// Make client request
 		err := client.DeleteInstance("123-456")
 		Expect(err).To(BeNil())
+
+		// Check correct URL requested
+		info := httpmock.GetCallCountInfo()
+		Expect(info["DELETE "+reqPath]).To(Equal(1))
+	})
+
+	It("should make a delete all instances request", func() {
+		// Prepare mocked HTTP
+		reqPath := test_url + "/instances"
+		expReqData := []byte(`{"namespace":"bobspace","confirm":true}`)
+		jsonResp := `["1234-im-a-uuid", "1234abcd-uuid-really"]`
+
+		httpmock.RegisterResponder("DELETE", reqPath,
+			func(req *http.Request) (*http.Response, error) {
+				buf, err := ioutil.ReadAll(req.Body)
+
+				Expect(err).To(BeNil())
+				Expect(buf).To(Equal(expReqData))
+
+				return httpmock.NewStringResponse(200, jsonResp), nil
+			},
+		)
+
+		// Make client request
+		instances, err := client.DeleteAllInstances("bobspace")
+		Expect(err).To(BeNil())
+		Expect(instances).To(Equal(
+			[]string{"1234-im-a-uuid", "1234abcd-uuid-really"}))
 
 		// Check correct URL requested
 		info := httpmock.GetCallCountInfo()
