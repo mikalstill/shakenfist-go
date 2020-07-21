@@ -44,7 +44,8 @@ var _ = Describe("Instance management functions", func() {
 			"user_data":"long story",
 			"block_devices":{},
 			"state":"nice",
-			"state_updated":1.2
+			"state_updated":1.2,
+			"power_state":"created"
 		}`)
 
 		// Prepare mocked HTTP
@@ -76,6 +77,7 @@ var _ = Describe("Instance management functions", func() {
 			BlockDevices: map[string]interface{}{},
 			State:        "nice",
 			StateUpdated: 1.2,
+			PowerState:   "created",
 		}))
 
 		// Check correct URL requested
