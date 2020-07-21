@@ -72,6 +72,25 @@ func (c *Client) DeleteNetwork(uuid string) error {
 	return err
 }
 
+// DeleteAllNetworks deletes all networks within a namespace. Specifying
+// namespace of "system" will attempt to delete all networks in a cluster.
+func (c *Client) DeleteAllNetworks(namespace string) ([]string, error) {
+	networks := []string{}
+
+	n := deleteAllRequest{
+		Namespace: namespace,
+		Confirm:   true,
+	}
+	req, err := json.Marshal(n)
+	if err != nil {
+		return networks, fmt.Errorf("Unable to marshal data: %v", err)
+	}
+
+	err = c.doRequestJSON("networks", "DELETE", *bytes.NewBuffer(req), &networks)
+
+	return networks, err
+}
+
 // NetworkSpec is a definition of an instance network connect.
 type NetworkSpec struct {
 	NetworkUUID string `json:"network_uuid"`

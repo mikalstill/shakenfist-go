@@ -151,6 +151,31 @@ func (c *Client) DeleteInstance(uuid string) error {
 	return err
 }
 
+type deleteAllRequest struct {
+	Namespace string `json:"namespace"`
+	Confirm   bool   `json:"confirm"`
+}
+
+// DeleteAllInstances deletes all instances within a namespace. Specifying
+// namespace "system" will delete all instances in a cluster.
+func (c *Client) DeleteAllInstances(namespace string) ([]string, error) {
+	instances := []string{}
+
+	n := deleteAllRequest{
+		Namespace: namespace,
+		Confirm:   true,
+	}
+	req, err := json.Marshal(n)
+	if err != nil {
+		return instances, fmt.Errorf("Unable to marshal data: %v", err)
+	}
+
+	err = c.doRequestJSON("instances",
+		"DELETE", *bytes.NewBuffer(req), &instances)
+
+	return instances, err
+}
+
 // Event defines an event that occurred on an instance.
 type Event struct {
 	Timestamp float32 `json:"timestamp"`

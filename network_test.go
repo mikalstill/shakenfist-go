@@ -202,6 +202,34 @@ var _ = Describe("Network management functions", func() {
 		Expect(info["DELETE "+reqPath]).To(Equal(1))
 	})
 
+	It("should make a delete all networks request", func() {
+		// Prepare mocked HTTP
+		reqPath := test_url + "/networks"
+		expReqData := []byte(`{"namespace":"bobspace","confirm":true}`)
+		jsonResp := `["1234-im-a-uuid", "1234abcd-uuid-really"]`
+
+		httpmock.RegisterResponder("DELETE", reqPath,
+			func(req *http.Request) (*http.Response, error) {
+				buf, err := ioutil.ReadAll(req.Body)
+
+				Expect(err).To(BeNil())
+				Expect(buf).To(Equal(expReqData))
+
+				return httpmock.NewStringResponse(200, jsonResp), nil
+			},
+		)
+
+		// Make client request
+		networks, err := client.DeleteAllNetworks("bobspace")
+		Expect(err).To(BeNil())
+		Expect(networks).To(Equal(
+			[]string{"1234-im-a-uuid", "1234abcd-uuid-really"}))
+
+		// Check correct URL requested
+		info := httpmock.GetCallCountInfo()
+		Expect(info["DELETE "+reqPath]).To(Equal(1))
+	})
+
 	It("should fail deleting a non-existent network", func() {
 		reqPath := test_url + "/networks/1234-5678"
 
