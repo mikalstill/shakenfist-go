@@ -40,6 +40,7 @@ var _ = Describe("Instance management functions", func() {
 				"bus":"DiskBus",
 				"type":"DiskType"
 			}],
+			"video":{"memory":16384, "model":"cirrus"},
 			"ssh_key":"longSSHKey",
 			"node":"somenode",
 			"console_port":1234,
@@ -72,6 +73,10 @@ var _ = Describe("Instance management functions", func() {
 					Type: "DiskType",
 				},
 			},
+			Video: VideoSpec{
+				Model:  "cirrus",
+				Memory: 16384,
+			},
 			SSHKey:       "longSSHKey",
 			Node:         "somenode",
 			ConsolePort:  1234,
@@ -101,6 +106,7 @@ var _ = Describe("Instance management functions", func() {
 				"bus":"DiskBus",
 				"type":"DiskType"
 			}],
+			"video":{"memory":16384, "model":"cirrus"},
 			"ssh_key":"longSSHKey",
 			"node":"somenode",
 			"console_port":1234,
@@ -108,7 +114,8 @@ var _ = Describe("Instance management functions", func() {
 			"user_data":"long story",
 			"block_devices":{},
 			"state":"nice",
-			"state_updated":1.2
+			"state_updated":1.2,
+			"power_state":"initial"
 		}`)
 
 		// Prepare mocked HTTP
@@ -132,6 +139,10 @@ var _ = Describe("Instance management functions", func() {
 					Type: "DiskType",
 				},
 			},
+			VideoSpec{
+				Model:  "cirrus",
+				Memory: 16384,
+			},
 			"longSSHKey",
 			"long story")
 
@@ -149,6 +160,10 @@ var _ = Describe("Instance management functions", func() {
 					Type: "DiskType",
 				},
 			},
+			Video: VideoSpec{
+				Model:  "cirrus",
+				Memory: 16384,
+			},
 			SSHKey:       "longSSHKey",
 			Node:         "somenode",
 			ConsolePort:  1234,
@@ -157,6 +172,7 @@ var _ = Describe("Instance management functions", func() {
 			BlockDevices: map[string]interface{}{},
 			State:        "nice",
 			StateUpdated: 1.2,
+			PowerState:   "initial",
 		}))
 	})
 

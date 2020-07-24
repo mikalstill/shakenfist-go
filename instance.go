@@ -14,6 +14,12 @@ type DiskSpec struct {
 	Type string `json:"type"`
 }
 
+// VideoSpec defines the type of video card in an instance.
+type VideoSpec struct {
+	Model  string `json:"model"`
+	Memory int    `json:"memory"` // Memory size in KB
+}
+
 // Instance is a definition of an instance.
 type Instance struct {
 	UUID         string                 `json:"uuid"`
@@ -21,6 +27,7 @@ type Instance struct {
 	CPUs         int                    `json:"cpus"`
 	Memory       int                    `json:"memory"`
 	DiskSpecs    []DiskSpec             `json:"disk_spec"`
+	Video        VideoSpec              `json:"video"`
 	SSHKey       string                 `json:"ssh_key"`
 	Node         string                 `json:"node"`
 	ConsolePort  int                    `json:"console_port"`
@@ -54,13 +61,14 @@ type createInstanceRequest struct {
 	Memory   int           `json:"memory"`
 	Network  []NetworkSpec `json:"network"`
 	Disk     []DiskSpec    `json:"disk"`
+	Video    VideoSpec     `json:"video"`
 	SSHKey   string        `json:"ssh_key"`
 	UserData string        `json:"user_data"`
 }
 
 // CreateInstance creates a new instance.
 func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
-	Networks []NetworkSpec, Disks []DiskSpec, SSHKey string,
+	Networks []NetworkSpec, Disks []DiskSpec, Video VideoSpec, SSHKey string,
 	UserData string) (Instance, error) {
 	request := &createInstanceRequest{
 		Name:     Name,
@@ -68,6 +76,7 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 		Memory:   Memory,
 		Network:  Networks,
 		Disk:     Disks,
+		Video:    Video,
 		SSHKey:   SSHKey,
 		UserData: UserData,
 	}

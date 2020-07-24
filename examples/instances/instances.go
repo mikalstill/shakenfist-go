@@ -20,6 +20,9 @@ func printInstance(instance client.Instance) {
 		fmt.Printf("    Bus:  %s\n", disk.Bus)
 		fmt.Printf("    Type: %s\n", disk.Type)
 	}
+	fmt.Println("Video:")
+	fmt.Println("  - Model:", instance.Video.Model)
+	fmt.Println("  - Memory:", instance.Video.Memory)
 	fmt.Printf("SSHKey: %s\n", instance.SSHKey)
 	fmt.Printf("Node: %s\n", instance.Node)
 	fmt.Printf("ConsolePort: %d\n", instance.ConsolePort)
@@ -86,6 +89,7 @@ func main() {
 	instance, err := c.CreateInstance("golang", 1, 1,
 		[]client.NetworkSpec{{NetworkUUID: networkUUID}},
 		[]client.DiskSpec{{Base: "cirros", Size: 8, Type: "disk", Bus: ""}},
+		client.VideoSpec{Model: "cirrus", Memory: 16384},
 		"", "")
 	if err != nil {
 		fmt.Println("CreateInstance request error: ", err)

@@ -20,6 +20,7 @@ func main() {
 	instance, err := c.CreateInstance("golang", 1, 1,
 		[]client.NetworkSpec{},
 		[]client.DiskSpec{{Base: "cirros", Size: 8, Type: "disk", Bus: ""}},
+		client.VideoSpec{Model: "cirrus", Memory: 16384},
 		"", "")
 	if err != nil {
 		fmt.Println("CreateInstance request error: ", err)
