@@ -14,7 +14,7 @@ func main() {
 	}
 
 	c := client.NewClient(
-		os.Getenv("SHAKENFIST_URL"),
+		os.Getenv("SHAKENFIST_API_URL"),
 		os.Getenv("SHAKENFIST_NAMESPACE"),
 		os.Getenv("SHAKENFIST_KEY"),
 	)
