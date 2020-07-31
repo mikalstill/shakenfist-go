@@ -245,4 +245,71 @@ var _ = Describe("Network management functions", func() {
 		info := httpmock.GetCallCountInfo()
 		Expect(info["DELETE "+reqPath]).To(Equal(1))
 	})
+
+	It("should get a list of interfaces on the network", func() {
+		reqPath := test_url + "/networks/1234-5678/interfaces"
+
+		// JSON data that SF would return
+		testNetJSON := []byte(`[
+		{
+		  "floating": null,
+		  "instance_uuid": "5f01aa37-7df5-4bbb-867b-63606d964802",
+		  "ipv4": "10.0.0.234",
+		  "macaddr": "00:00:00:a8:58:f9",
+		  "model": "virtio",
+		  "network_uuid": "0e766fda-b5fc-40b1-9f96-e69bbb5cf590",
+		  "order": 0,
+		  "state": "created",
+		  "state_updated": 1596169109.229394,
+		  "uuid": "372e4f5c-7d5f-4c7b-a1b2-512ddb7da82a"
+		},
+		{
+		  "floating": "10.10.0.175",
+		  "instance_uuid": "7594c492-a27f-4da3-ba2a-19fdbe7e14a2",
+		  "ipv4": "10.0.0.34",
+		  "macaddr": "00:00:00:af:14:16",
+		  "model": "virtio",
+		  "network_uuid": "0e766fda-b5fc-40b1-9f96-e69bbb5cf590",
+		  "order": 0,
+		  "state": "created",
+		  "state_updated": 1596166987.5956044,
+		  "uuid": "77e3b00f-89a1-4fc0-b595-8f6ed092f8e7"
+		}
+	  ]
+	  `)
+
+		// Prepare mocked HTTP
+		httpmock.RegisterResponder("GET", reqPath,
+			httpmock.NewBytesResponder(200, testNetJSON))
+
+		// Make client request
+		net, err := client.GetNetworkInterfaces("1234-5678")
+		Expect(err).To(BeNil())
+		Expect(net).To(Equal([]NetworkInterface{
+			{
+				Floating:     "",
+				InstanceUUID: "5f01aa37-7df5-4bbb-867b-63606d964802",
+				IPv4:         "10.0.0.234",
+				MACAddress:   "00:00:00:a8:58:f9",
+				Model:        "virtio",
+				NetworkUUID:  "0e766fda-b5fc-40b1-9f96-e69bbb5cf590",
+				Order:        0,
+				State:        "created",
+				StateUpdated: 1596169109.229394,
+				UUID:         "372e4f5c-7d5f-4c7b-a1b2-512ddb7da82a",
+			},
+			{
+				Floating:     "10.10.0.175",
+				InstanceUUID: "7594c492-a27f-4da3-ba2a-19fdbe7e14a2",
+				IPv4:         "10.0.0.34",
+				MACAddress:   "00:00:00:af:14:16",
+				Model:        "virtio",
+				NetworkUUID:  "0e766fda-b5fc-40b1-9f96-e69bbb5cf590",
+				Order:        0,
+				State:        "created",
+				StateUpdated: 1596166987.5956044,
+				UUID:         "77e3b00f-89a1-4fc0-b595-8f6ed092f8e7",
+			},
+		}))
+	})
 })

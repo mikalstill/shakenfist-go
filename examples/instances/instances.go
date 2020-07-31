@@ -144,6 +144,18 @@ func main() {
 	}
 	printInterface(iface)
 
+	fmt.Println("****************************************")
+	fmt.Println("*** Get list of instances on network ***")
+	fmt.Println("****************************************")
+	ifaceList, err := c.GetNetworkInterfaces(networkUUID)
+	if err != nil {
+		fmt.Println("GetInterface request error: ", err)
+		return
+	}
+	for _, i := range ifaceList {
+		printInterface(i)
+	}
+
 	fmt.Println("****************************")
 	fmt.Println("*** Defloat the instance ***")
 	fmt.Println("****************************")
