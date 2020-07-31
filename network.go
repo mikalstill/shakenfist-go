@@ -122,6 +122,15 @@ func (c *Client) GetInstanceInterfaces(uuid string) ([]NetworkInterface, error) 
 	return interfaces, err
 }
 
+// GetNetworkInterfaces fetches a list of interfaces on a network.
+func (c *Client) GetNetworkInterfaces(uuid string) ([]NetworkInterface, error) {
+	path := "networks/" + uuid + "/interfaces"
+	interfaces := []NetworkInterface{}
+	err := c.doRequestJSON(path, "GET", bytes.Buffer{}, &interfaces)
+
+	return interfaces, err
+}
+
 // GetInterface fetches a specific network interface.
 func (c *Client) GetInterface(uuid string) (NetworkInterface, error) {
 	path := "interfaces/" + uuid
