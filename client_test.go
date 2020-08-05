@@ -5,11 +5,38 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
+
+var _ = Describe("Client timeout", func() {
+	const (
+		test_url       string = "http://server:13000"
+		test_namespace string = "testspace"
+		test_key       string = "testkey"
+	)
+
+	var (
+		client *Client
+	)
+
+	BeforeEach(func() {
+		// Configure client
+		client = NewClient(test_url, test_namespace, test_key)
+	})
+
+	It("should have the default timeout", func() {
+		Expect(client.httpClient.Timeout).To(Equal(time.Duration(0)))
+	})
+
+	It("should set the timeout", func() {
+		client.SetTimeout(123)
+		Expect(client.httpClient.Timeout).To(Equal(123 * time.Second))
+	})
+})
 
 var _ = Describe("Auth request", func() {
 	const (

@@ -274,9 +274,7 @@ var _ = Describe("Network management functions", func() {
 		  "state": "created",
 		  "state_updated": 1596166987.5956044,
 		  "uuid": "77e3b00f-89a1-4fc0-b595-8f6ed092f8e7"
-		}
-	  ]
-	  `)
+		}]`)
 
 		// Prepare mocked HTTP
 		httpmock.RegisterResponder("GET", reqPath,
