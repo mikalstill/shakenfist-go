@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 // ResourceType is a type of Shaken Fist resource
@@ -48,6 +49,13 @@ func NewClient(server_url string, namespace, apiKey string) *Client {
 		namespace:  namespace,
 		apiKey:     apiKey,
 	}
+}
+
+// SetTimeout sets the HTTP client timeout in seconds.
+//
+// The default is zero. A timeout of zero equates to an infinite timeout.
+func (c *Client) SetTimeout(timeout int) {
+	c.httpClient.Timeout = time.Duration(timeout) * time.Second
 }
 
 //
