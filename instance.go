@@ -202,26 +202,6 @@ func (c *Client) GetInstanceEvents(uuid string) ([]Event, error) {
 	return events, err
 }
 
-// ImageRequest defines a link to an image.
-type imageRequest struct {
-	URL string `json:"url"`
-}
-
-// CacheImage will cache an image.
-func (c *Client) CacheImage(imageURL string) error {
-	request := &imageRequest{
-		URL: imageURL,
-	}
-	post, err := json.Marshal(request)
-	if err != nil {
-		return err
-	}
-
-	err = c.doRequestJSON("images", "POST", *bytes.NewBuffer(post), nil)
-
-	return err
-}
-
 type consoleDataReq struct {
 	Length int `json:"length"`
 }
