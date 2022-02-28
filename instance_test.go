@@ -115,7 +115,9 @@ var _ = Describe("Instance management functions", func() {
 			"block_devices":{},
 			"state":"nice",
 			"state_updated":1.2,
-			"power_state":"initial"
+			"power_state":"initial",
+			"namespace":"namespace",
+			"metadata":"metadata"
 		}`)
 
 		// Prepare mocked HTTP
@@ -144,7 +146,12 @@ var _ = Describe("Instance management functions", func() {
 				Memory: 16384,
 			},
 			"longSSHKey",
-			"long story")
+			"long story",
+			"namespace",
+			"metadata",
+			false,
+			false,
+			"")
 
 		Expect(err).To(BeNil())
 		Expect(inst).To(Equal(Instance{
@@ -173,6 +180,10 @@ var _ = Describe("Instance management functions", func() {
 			State:        "nice",
 			StateUpdated: 1.2,
 			PowerState:   "initial",
+			Namespace:    "namespace",
+			Metadata:     "metadata",
+			UEFI:         false,
+			SecureBoot:   false,
 		}))
 	})
 
@@ -243,7 +254,7 @@ var _ = Describe("Instance management functions", func() {
 			httpmock.NewBytesResponder(200, nil))
 
 		// Make client request
-		err := client.DeleteInstance("123-456")
+		err := client.DeleteInstance("123-456", "")
 		Expect(err).To(BeNil())
 
 		// Check correct URL requested

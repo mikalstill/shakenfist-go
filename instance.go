@@ -22,21 +22,26 @@ type VideoSpec struct {
 
 // Instance is a definition of an instance.
 type Instance struct {
-	UUID         string                 `json:"uuid"`
-	Name         string                 `json:"name"`
-	CPUs         int                    `json:"cpus"`
-	Memory       int                    `json:"memory"`
-	DiskSpecs    []DiskSpec             `json:"disk_spec"`
-	Video        VideoSpec              `json:"video"`
-	SSHKey       string                 `json:"ssh_key"`
-	Node         string                 `json:"node"`
-	ConsolePort  int                    `json:"console_port"`
-	VDIPort      int                    `json:"vdi_port"`
-	UserData     string                 `json:"user_data"`
-	BlockDevices map[string]interface{} `json:"block_devices"`
-	State        string                 `json:"state"`
-	StateUpdated float64                `json:"state_updated"`
-	PowerState   string                 `json:"power_state"`
+	BlockDevices      map[string]interface{} `json:"block_devices"`
+	ConsolePort       int                    `json:"console_port"`
+	CPUs              int                    `json:"cpus"`
+	DiskSpecs         []DiskSpec             `json:"disk_spec"`
+	Metadata          string                 `json:"metadata"`
+	Memory            int                    `json:"memory"`
+	Name              string                 `json:"name"`
+	Namespace         string                 `json:"namespace"`
+	NetworkInterfaces []NetworkInterface     `json:"network_interfaces"`
+	Node              string                 `json:"node"`
+	PowerState        string                 `json:"power_state"`
+	SSHKey            string                 `json:"ssh_key"`
+	State             string                 `json:"state"`
+	StateUpdated      float64                `json:"state_updated"`
+	SecureBoot        bool                   `json:"secure_boot"`
+	UEFI              bool                   `json:"uefi"`
+	UserData          string                 `json:"user_data"`
+	UUID              string                 `json:"uuid"`
+	VDIPort           int                    `json:"vdi_port"`
+	Video             VideoSpec              `json:"video"`
 }
 
 // GetInstances fetches a list of instances.
@@ -56,29 +61,41 @@ func (c *Client) GetInstance(uuid string) (Instance, error) {
 }
 
 type createInstanceRequest struct {
-	Name     string        `json:"name"`
-	CPUs     int           `json:"cpus"`
-	Memory   int           `json:"memory"`
-	Network  []NetworkSpec `json:"network"`
-	Disk     []DiskSpec    `json:"disk"`
-	Video    VideoSpec     `json:"video"`
-	SSHKey   string        `json:"ssh_key"`
-	UserData string        `json:"user_data"`
+	Name          string        `json:"name"`
+	CPUs          int           `json:"cpus"`
+	Memory        int           `json:"memory"`
+	Metadata      string        `json:"metadata"`
+	NameSpace     string        `json:"namespace"`
+	Network       []NetworkSpec `json:"network"`
+	NVRAMTemplate string        `json:"nvram_template"`
+	Disk          []DiskSpec    `json:"disk"`
+	Video         VideoSpec     `json:"video"`
+	SecureBoot    bool          `json:"secure_boot"`
+	SSHKey        string        `json:"ssh_key"`
+	UEFI          bool          `json:"uefi"`
+	UserData      string        `json:"user_data"`
 }
 
 // CreateInstance creates a new instance.
-func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
-	Networks []NetworkSpec, Disks []DiskSpec, Video VideoSpec, SSHKey string,
-	UserData string) (Instance, error) {
+func (c *Client) CreateInstance(name string, cpus int, memory int,
+	networks []NetworkSpec, disks []DiskSpec, video VideoSpec, sshKey string,
+	userData string, nameSpace string, metadata string, secureBoot bool,
+	uefi bool, nvramTemplate string) (Instance, error) {
+
 	request := &createInstanceRequest{
-		Name:     Name,
-		CPUs:     CPUs,
-		Memory:   Memory,
-		Network:  Networks,
-		Disk:     Disks,
-		Video:    Video,
-		SSHKey:   SSHKey,
-		UserData: UserData,
+		Name:          name,
+		CPUs:          cpus,
+		Memory:        memory,
+		Metadata:      metadata,
+		NameSpace:     nameSpace,
+		Network:       networks,
+		NVRAMTemplate: nvramTemplate,
+		Disk:          disks,
+		Video:         video,
+		SecureBoot:    secureBoot,
+		SSHKey:        sshKey,
+		UEFI:          uefi,
+		UserData:      userData,
 	}
 	post, err := json.Marshal(request)
 	if err != nil {
@@ -91,17 +108,17 @@ func (c *Client) CreateInstance(Name string, CPUs int, Memory int,
 	return instance, err
 }
 
-// snapshotRequest defines options when making a snapshot of an instance.
-type snapshotRequest struct {
-	All bool `json:"all"`
-}
-
 // SnapshotInstance takes a snapshot of an instance.
-func (c *Client) SnapshotInstance(uuid string, all bool) error {
+func (c *Client) SnapshotInstance(uuid string, all bool, device string) error {
+
 	path := "instances/" + uuid + "/snapshot"
 
-	request := &snapshotRequest{
-		All: all,
+	request := &struct {
+		All    bool   `json:"all"`
+		Device string `json:"device"`
+	}{
+		All:    all,
+		Device: device,
 	}
 	post, err := json.Marshal(request)
 	if err != nil {
@@ -155,8 +172,22 @@ func (c *Client) UnPauseInstance(uuid string) error {
 }
 
 // DeleteInstance deletes an instance.
-func (c *Client) DeleteInstance(uuid string) error {
-	err := c.doRequestJSON("instances/"+uuid, "DELETE", bytes.Buffer{}, nil)
+func (c *Client) DeleteInstance(uuid string, namespace string) error {
+	var err error
+	var req []byte
+
+	if namespace != "" {
+		n := &struct {
+			Namespace string `json:"namespace"`
+		}{
+			Namespace: namespace,
+		}
+		req, err = json.Marshal(n)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal data: %v", err)
+		}
+	}
+	err = c.doRequestJSON("instances/"+uuid, "DELETE", *bytes.NewBuffer(req), nil)
 	return err
 }
 
@@ -231,4 +262,46 @@ func (c *Client) GetConsoleData(uuid string, n int) (string, error) {
 	d := buf.String()
 
 	return d, nil
+}
+
+// SetInstanceMetadataItem sets a metadata key on an instance to value.
+func (c *Client) SetInstanceMetadataItem(uuid string, key string, value string) error {
+	path := "instances/" + uuid + "/metadata/" + key
+
+	request := &struct {
+		Value string `json:"value"`
+	}{
+		Value: value,
+	}
+
+	put, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	return c.doRequestJSON(path, "PUT", *bytes.NewBuffer(put), nil)
+}
+
+// DeleteInstanceMetadataItem deletes an individual metadata key on an instance.
+func (c *Client) DeleteInstanceMetadataItem(uuid string, key string) error {
+	path := "instances/" + uuid + "/metadata/" + key
+	return c.doRequestJSON(path, "DELETE", bytes.Buffer{}, nil)
+}
+
+// UpdateLabel changes the name of a blob label
+func (c *Client) UpdateLabel(labelName string, blobUUID string) error {
+	path := "label/" + labelName
+
+	request := &struct {
+		BlobUUID string `json:"blob_uuid"`
+	}{
+		BlobUUID: blobUUID,
+	}
+
+	put, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	return c.doRequestJSON(path, "PUT", *bytes.NewBuffer(put), nil)
 }

@@ -90,7 +90,7 @@ func main() {
 		[]client.NetworkSpec{{NetworkUUID: networkUUID}},
 		[]client.DiskSpec{{Base: "cirros", Size: 8, Type: "disk", Bus: ""}},
 		client.VideoSpec{Model: "cirrus", Memory: 16384},
-		"", "")
+		"", "", "", "", false, false, "")
 	if err != nil {
 		fmt.Println("CreateInstance request error: ", err)
 		return
@@ -176,7 +176,7 @@ func main() {
 	fmt.Println("***************************")
 	fmt.Println("*** Delete the instance ***")
 	fmt.Println("***************************")
-	err = c.DeleteInstance(instance.UUID)
+	err = c.DeleteInstance(instance.UUID, "")
 	if err != nil {
 		fmt.Println("DeleteInstance request error: ", err)
 		return
