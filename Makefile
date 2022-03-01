@@ -37,7 +37,7 @@ lint:
 	golangci-lint run ./...
 
 install-tools:
-	GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.44.2
 
 pre-commit: fmtcheck lint clean build-examples
 
