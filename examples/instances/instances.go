@@ -83,6 +83,20 @@ func main() {
 	}
 	networkUUID := createdNetwork.UUID
 
+	fmt.Println("************************")
+	fmt.Println("*** Wait for network ***")
+	fmt.Println("************************")
+	for {
+		net, err := c.GetNetwork(networkUUID)
+		if err != nil {
+			fmt.Println("GetNetwork request error: ", err)
+			return
+		}
+		if net.State != "initial" {
+			break
+		}
+	}
+
 	fmt.Println("**************************")
 	fmt.Println("*** Create an instance ***")
 	fmt.Println("**************************")
@@ -180,6 +194,20 @@ func main() {
 	if err != nil {
 		fmt.Println("DeleteInstance request error: ", err)
 		return
+	}
+
+	fmt.Println("**********************************")
+	fmt.Println("*** Wait for instance deletion ***")
+	fmt.Println("**********************************")
+	for {
+		net, err := c.GetInstance(instance.UUID)
+		if err != nil {
+			fmt.Println("GetInstance request error: ", err)
+			return
+		}
+		if net.State == "deleted" || net.State == "error" {
+			break
+		}
 	}
 
 	fmt.Println("**************************")

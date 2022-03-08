@@ -15,6 +15,7 @@
 # vendor/
 
 # Build products
+examples/artifacts/artifacts
 examples/instances/instances
 examples/networks/networks
 examples/metadata/metadata
